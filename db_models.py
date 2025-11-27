@@ -36,7 +36,10 @@ class Track(Base):
     """
     __tablename__ = "tracks"
     id = Column(Integer, primary_key=True, index=True)
-    spotify_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # --- FIX IS HERE: Removed 'unique=True' ---
+    spotify_id = Column(String, index=True, nullable=False)
+    
     name = Column(String, nullable=False)
     artist = Column(String, nullable=False)
     url = Column(String)
@@ -81,4 +84,5 @@ class UpdateLog(Base):
     status = Column(String, nullable=False)  # 'Success' or 'Failure'
     message = Column(String)
     playlist_name = Column(String, nullable=True)
+
     error_details = Column(String, nullable=True)
