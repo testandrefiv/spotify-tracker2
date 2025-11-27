@@ -305,10 +305,12 @@ class SpotifyStreamTracker:
             processed_count = 0
             
             for idx, t_data in enumerate(api_tracks, 1):
-                # NOTE: Print statement removed from here to prevent log spam
-                
+                # 1. FIX: Look for the song SPECIFICALLY in this playlist (Separate duplicate songs)
                 db_track = db.query(Track).filter(
-                    Track.spotify_id == t_data['spotify_id']
+                    and_(
+                        Track.spotify_id == t_data['spotify_id'],
+                        Track.playlist_id == playlist_obj.id  # <--- Added playlist ID filter
+                    )
                 ).first()
                 
                 if not db_track:
@@ -417,6 +419,9 @@ class SpotifyStreamTracker:
                 )
                 db.add(new_history)
                 processed_count += 1
+                
+                # 2. FIX: Save immediately to prevent duplicate "New" entries in same playlist
+                db.commit()
 
             playlist_obj.last_updated = datetime.utcnow()
             db.commit()
