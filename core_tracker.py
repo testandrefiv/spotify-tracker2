@@ -305,7 +305,7 @@ class SpotifyStreamTracker:
             processed_count = 0
             
             for idx, t_data in enumerate(api_tracks, 1):
-                print(f"\n[{idx}/{len(api_tracks)}] Processing: {t_data['name']}")
+                # NOTE: Print statement removed from here to prevent log spam
                 
                 db_track = db.query(Track).filter(
                     Track.spotify_id == t_data['spotify_id']
@@ -332,8 +332,11 @@ class SpotifyStreamTracker:
                 ).first()
                 
                 if existing_today:
-                    # print(f"  → Already updated today, skipping")
+                    # SILENT SKIP: No print, just continue
                     continue
+
+                # PRINT HERE: Only print if we are actually processing the song
+                print(f"\n[{idx}/{len(api_tracks)}] Processing: {t_data['name']}")
 
                 total_streams = self.scrape_stream_count(t_data['url'], t_data['name'])
                 
