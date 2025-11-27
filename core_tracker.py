@@ -332,7 +332,7 @@ class SpotifyStreamTracker:
                 ).first()
                 
                 if existing_today:
-                    print(f"  → Already updated today, skipping")
+                    # print(f"  → Already updated today, skipping")
                     continue
 
                 total_streams = self.scrape_stream_count(t_data['url'], t_data['name'])
@@ -429,4 +429,5 @@ class SpotifyStreamTracker:
         finally:
             if self.driver:
                 self.driver.quit()
+
                 print("✓ WebDriver closed")
