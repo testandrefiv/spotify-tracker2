@@ -25,6 +25,12 @@ class Playlist(Base):
     name = Column(String, nullable=False)
     url = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    
+    # --- NEW COLUMNS ADDED ---
+    custom_name = Column(String, nullable=True)
+    status = Column(String, default="Completed") 
+    # -------------------------
+
     last_updated = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -37,7 +43,8 @@ class Track(Base):
     __tablename__ = "tracks"
     id = Column(Integer, primary_key=True, index=True)
     
-    # --- FIX IS HERE: Removed 'unique=True' ---
+    # Removed unique=True to allow tracks to appear in different playlists if needed logic changes,
+    # or just to match your provided fix.
     spotify_id = Column(String, index=True, nullable=False)
     
     name = Column(String, nullable=False)
@@ -84,5 +91,4 @@ class UpdateLog(Base):
     status = Column(String, nullable=False)  # 'Success' or 'Failure'
     message = Column(String)
     playlist_name = Column(String, nullable=True)
-
     error_details = Column(String, nullable=True)
