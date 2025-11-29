@@ -10,14 +10,8 @@
         body { font-family: 'Inter', sans-serif; }
         
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         @keyframes pulse {
@@ -25,13 +19,8 @@
             50% { opacity: 0.5; }
         }
         
-        .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .animate-pulse-slow {
-            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         
         .gradient-border {
             position: relative;
@@ -56,7 +45,6 @@
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen px-4 relative overflow-hidden">
     
-    <!-- Animated Background -->
     <div class="absolute inset-0 overflow-hidden">
         <div class="absolute w-96 h-96 bg-green-500/10 rounded-full blur-3xl -top-48 -left-48 animate-pulse-slow"></div>
         <div class="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse-slow" style="animation-delay: 1.5s;"></div>
@@ -65,7 +53,6 @@
     <div class="w-full max-w-md relative z-10 animate-fade-in-up">
         <div class="gradient-border">
             <div class="bg-gray-800 rounded-xl p-8">
-                <!-- Logo & Title -->
                 <div class="text-center mb-8">
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4">
                         <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -76,12 +63,9 @@
                     <p class="text-gray-400">Advanced Spotify Analytics Platform</p>
                 </div>
 
-                <!-- Login Form -->
                 <form id="loginForm" class="space-y-6">
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
-                            Username
-                        </label>
+                        <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,9 +79,7 @@
                     </div>
 
                     <div>
-                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
-                            Password
-                        </label>
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +107,6 @@
                     </button>
                 </form>
 
-                <!-- Error Message -->
                 <div id="errorMessage" class="mt-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm text-center hidden">
                     <div class="flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -135,7 +116,6 @@
                     </div>
                 </div>
                 
-                <!-- Info Box -->
                 <div class="mt-6 p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
                     <div class="flex items-start gap-3">
                         <svg class="w-5 h-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -151,7 +131,6 @@
             </div>
         </div>
         
-        <!-- Footer -->
         <div class="text-center mt-6 text-gray-500 text-sm">
             <p>Powered by Spotify API & Advanced Analytics</p>
         </div>
@@ -166,7 +145,6 @@
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
-            
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
@@ -179,16 +157,8 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMessage.classList.add('hidden');
-            
-            // Show loading state
             loginBtn.disabled = true;
-            loginBtn.innerHTML = `
-                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Signing in...</span>
-            `;
+            loginBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Signing in...</span>`;
 
             const formData = new FormData(loginForm);
 
@@ -200,27 +170,20 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    localStorage.setItem('access_token', data.access_token);
                     
-                    // Success animation
-                    loginBtn.innerHTML = `
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>Success!</span>
-                    `;
+                    // --- FIXED TOKEN KEY HERE ---
+                    localStorage.setItem('token', data.access_token);
                     
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 500);
+                    loginBtn.innerHTML = `<span>Success!</span>`;
+                    setTimeout(() => window.location.href = '/dashboard', 500);
                 } else {
                     const errorData = await response.json().catch(() => ({}));
-                    errorText.textContent = errorData.detail || "Invalid credentials. Please try again.";
+                    errorText.textContent = errorData.detail || "Invalid credentials.";
                     errorMessage.classList.remove('hidden');
                     resetButton();
                 }
             } catch (error) {
-                errorText.textContent = "Network error. Please check your connection.";
+                errorText.textContent = "Network error.";
                 errorMessage.classList.remove('hidden');
                 resetButton();
             }
@@ -228,26 +191,8 @@
 
         function resetButton() {
             loginBtn.disabled = false;
-            loginBtn.innerHTML = `
-                <span>Sign In</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                </svg>
-            `;
+            loginBtn.innerHTML = `<span>Sign In</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>`;
         }
-
-        // Auto-hide error after 5 seconds
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (!errorMessage.classList.contains('hidden')) {
-                    setTimeout(() => {
-                        errorMessage.classList.add('hidden');
-                    }, 5000);
-                }
-            });
-        });
-
-        observer.observe(errorMessage, { attributes: true, attributeFilter: ['class'] });
     </script>
 </body>
 </html>
