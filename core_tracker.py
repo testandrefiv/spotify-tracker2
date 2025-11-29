@@ -183,7 +183,6 @@ class SpotifyStreamTracker:
         # --- WEEKLY LOGIC (Last 7 days) ---
         week_start = today_date - timedelta(days=6)
         
-        # 1. Count how many days of data we actually have in the last 7 days
         days_count_weekly = db.query(func.count(StreamHistory.id)).filter(
             and_(
                 StreamHistory.track_id == track_id,
@@ -192,7 +191,7 @@ class SpotifyStreamTracker:
             )
         ).scalar()
         
-        # 2. Only calculate sum if we have enough data (e.g., at least 6 prior days + today = 7)
+        # Must have at least 6 days of history + today = 7
         if days_count_weekly and days_count_weekly >= 6:
             week_history = db.query(StreamHistory).filter(
                 and_(
@@ -208,7 +207,6 @@ class SpotifyStreamTracker:
         # --- MONTHLY LOGIC (Last 30 days) ---
         month_start = today_date - timedelta(days=29)
         
-        # 1. Count how many days of data we have
         days_count_monthly = db.query(func.count(StreamHistory.id)).filter(
             and_(
                 StreamHistory.track_id == track_id,
@@ -217,7 +215,6 @@ class SpotifyStreamTracker:
             )
         ).scalar()
         
-        # 2. Only calculate sum if we have at least 29 prior days
         if days_count_monthly and days_count_monthly >= 29:
             month_history = db.query(StreamHistory).filter(
                 and_(
@@ -228,7 +225,7 @@ class SpotifyStreamTracker:
             ).all()
             monthly_sum = sum(h.daily_streams for h in month_history) + today_daily
         else:
-            monthly_sum = 0 # Frontend will treat 0 as "-"
+            monthly_sum = 0 
         
         return weekly_sum, monthly_sum
 
@@ -237,10 +234,10 @@ class SpotifyStreamTracker:
         print(f"Starting update for: {playlist_obj.name}")
         print(f"{'='*60}\n")
         
-        # --- UPDATE STATUS START ---
+        # --- NEW: UPDATE STATUS TO 'UPDATING...' ---
         playlist_obj.status = "Updating..."
         db.commit()
-        # ---------------------------
+        # -------------------------------------------
 
         try:
             if not self.setup_spotipy(): raise Exception("Failed to initialize Spotify API")
@@ -253,11 +250,11 @@ class SpotifyStreamTracker:
             processed_count = 0
             
             for idx, t_data in enumerate(api_tracks, 1):
-                # FIXED: Isolate tracks per playlist
+                # --- KEEPING YOUR FIX: ISOLATION BY PLAYLIST_ID ---
                 db_track = db.query(Track).filter(
                     and_(
                         Track.spotify_id == t_data['spotify_id'],
-                        Track.playlist_id == playlist_obj.id
+                        Track.playlist_id == playlist_obj.id 
                     )
                 ).first()
                 
@@ -323,18 +320,18 @@ class SpotifyStreamTracker:
                 )
                 db.add(new_history)
                 processed_count += 1
-                db.commit() # Save immediately to handle duplicates properly
+                db.commit() # Save immediately
 
-            # --- UPDATE STATUS END ---
+            # --- NEW: UPDATE STATUS TO 'UPDATED' ---
             playlist_obj.last_updated = datetime.utcnow()
             playlist_obj.status = "Updated"
             db.commit()
-            # -------------------------
+            # ---------------------------------------
             
             print(f"\n✓ Successfully processed {processed_count} tracks\n")
             
         except Exception as e:
-            # --- STATUS FAIL ---
+            # --- NEW: UPDATE STATUS TO 'FAILED' ---
             playlist_obj.status = "Failed"
             db.commit()
             print(f"\n✗ ERROR: {e}")
