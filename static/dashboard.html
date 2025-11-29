@@ -24,21 +24,11 @@
             to { opacity: 1; }
         }
         
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
         .animate-slide-in { animation: slideInRight 0.3s ease-out; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out; }
         
-        .status-badge { animation: fadeIn 0.5s ease-out; }
-        
-        .status-updating { 
-            background-color: #fef3c7; 
-            color: #92400e; 
-            animation: pulse 1.5s infinite; 
+        .status-badge {
+            animation: fadeIn 0.5s ease-out;
         }
         
         .modal {
@@ -53,7 +43,7 @@
         .modal.active {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-center;
         }
         
         .modal-content {
@@ -63,6 +53,7 @@
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
 
+    <!-- Navigation -->
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -94,8 +85,10 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
+        <!-- System Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
@@ -155,6 +148,7 @@
             </div>
         </div>
 
+        <!-- Admin Controls -->
         <div id="adminControls" class="hidden mb-8 animate-fade-in">
             <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
                 <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -165,6 +159,7 @@
                 </h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Add Playlist -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Add Playlist</label>
                         <div class="flex gap-2">
@@ -176,6 +171,7 @@
                         </div>
                     </div>
                     
+                    <!-- Quick Actions -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Actions</label>
                         <div class="flex gap-2">
@@ -191,6 +187,7 @@
                         </div>
                     </div>
                     
+                    <!-- Management -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Management</label>
                         <div class="flex gap-2">
@@ -209,7 +206,9 @@
             </div>
         </div>
 
+        <!-- Data Views -->
         <div class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 overflow-hidden">
+            <!-- Tabs -->
             <div class="flex border-b border-gray-700 overflow-x-auto">
                 <button onclick="switchTab('summary')" id="tab-summary" 
                     class="px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap">
@@ -229,6 +228,7 @@
                 </button>
             </div>
 
+            <!-- Toolbar -->
             <div class="p-4 border-b border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div class="flex gap-3 w-full sm:w-auto">
                     <input type="text" id="tableSearch" onkeyup="filterTable()" 
@@ -248,7 +248,9 @@
                 </button>
             </div>
 
+            <!-- Content -->
             <div class="overflow-x-auto">
+                <!-- Summary Table -->
                 <table id="summaryTable" class="w-full text-sm text-left text-gray-400">
                     <thead class="text-xs text-gray-300 uppercase bg-gray-750 border-b border-gray-700">
                         <tr>
@@ -269,10 +271,13 @@
                         </tr>
                     </thead>
                     <tbody id="summaryBody" class="divide-y divide-gray-700">
-                        </tbody>
+                        <!-- Rows injected here -->
+                    </tbody>
                 </table>
 
+                <!-- Totals View -->
                 <div id="totalsView" class="p-6 hidden">
+                    <!-- Overall Total Card -->
                     <div class="mb-6 bg-gradient-to-r from-green-900/30 to-blue-900/30 border-2 border-green-500/50 rounded-xl p-6">
                         <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -308,19 +313,24 @@
                         </div>
                     </div>
 
+                    <!-- Playlist-wise Totals -->
                     <h3 class="text-lg font-bold text-white mb-4">Playlist-wise Breakdown</h3>
                     <div id="playlistTotalsContainer" class="space-y-4">
-                        </div>
+                        <!-- Playlist cards injected here -->
+                    </div>
                 </div>
 
+                <!-- Sheets View -->
                 <div id="sheetsView" class="hidden">
                     <div class="p-4 bg-gray-750 border-b border-gray-700">
                         <p class="text-sm text-gray-400">📑 Each playlist displayed as a separate sheet with all tracks and totals</p>
                     </div>
                     <div id="sheetsContainer" class="p-6 space-y-8">
-                        </div>
+                        <!-- Sheets injected here -->
+                    </div>
                 </div>
 
+                <!-- Full Data Table -->
                 <table id="fullTable" class="w-full text-sm text-left text-gray-400 hidden">
                     <thead class="text-xs text-gray-300 uppercase bg-gray-750 border-b border-gray-700">
                         <tr>
@@ -336,7 +346,8 @@
                         </tr>
                     </thead>
                     <tbody id="fullBody" class="divide-y divide-gray-700">
-                        </tbody>
+                        <!-- Rows injected here -->
+                    </tbody>
                 </table>
                 
                 <div id="loadingSpinner" class="hidden p-10 text-center">
@@ -358,6 +369,9 @@
         </div>
     </main>
 
+    <!-- MODALS -->
+    
+    <!-- Logs Modal -->
     <div id="logsModal" class="modal">
         <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -370,11 +384,13 @@
             </div>
             <div class="p-6 overflow-y-auto flex-1">
                 <div id="logsContent" class="space-y-2 font-mono text-xs">
-                    </div>
+                    <!-- Logs injected here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Playlists Management Modal -->
     <div id="playlistsModal" class="modal">
         <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -387,11 +403,13 @@
             </div>
             <div class="p-6 overflow-y-auto flex-1">
                 <div id="playlistsList" class="space-y-3">
-                    </div>
+                    <!-- Playlists injected here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Users Management Modal -->
     <div id="usersModal" class="modal">
         <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -403,6 +421,7 @@
                 </button>
             </div>
             <div class="p-6 overflow-y-auto flex-1">
+                <!-- Add User Form -->
                 <div class="mb-6 p-4 bg-gray-700 rounded-lg">
                     <h4 class="text-sm font-semibold text-white mb-3">Add New User</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -420,12 +439,15 @@
                     </button>
                 </div>
                 
+                <!-- Users List -->
                 <div id="usersList" class="space-y-3">
-                    </div>
+                    <!-- Users injected here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Change Password Modal -->
     <div id="passwordModal" class="modal">
         <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-md w-full mx-4">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
@@ -439,15 +461,22 @@
             <div class="p-6">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Old Password</label>
-                        <input type="password" id="oldPassword" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
+                        <input type="password" id="oldPassword" 
+                            class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">New Password</label>
-                        <input type="password" id="newPasswordChange" class="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2.5">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+                        <input type="password" id="newPasswordField" 
+                            class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
                     </div>
-                    <button onclick="changePassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">
-                        Update Password
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" 
+                            class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
+                    </div>
+                    <button onclick="changePassword()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2.5 transition">
+                        Change Password
                     </button>
                 </div>
             </div>
@@ -455,417 +484,747 @@
     </div>
 
     <script>
-        const API_URL = "/api";
-        let token = localStorage.getItem("token");
+        const API_BASE = window.location.origin;
+        let currentTab = 'summary';
+        let cachedSummary = [];
+        let cachedFull = [];
+        let cachedSheets = [];
+        let summaryData = null;
+        let allPlaylists = [];
         let currentSort = { column: null, direction: 'asc' };
-        let allData = [];
-        let playlistsData = [];
-        let summaryData = [];
-        let isAdmin = false;
+        let currentUser = null;
 
-        // --- AUTH ---
-        async function fetchWithAuth(url, options = {}) {
-            if (!token) {
-                window.location.href = "/";
-                return;
-            }
-            
-            if (!options.headers) options.headers = {};
-            options.headers["Authorization"] = "Bearer " + token;
-            
+        // Auth Check
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = '/';
+
+        const getHeaders = () => ({
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkUserRole();
+            await loadStats();
+            await loadPlaylists();
+            await loadData();
+        });
+
+        async function checkUserRole() {
             try {
-                const response = await fetch(url, options);
-                if (response.status === 401) {
-                    logout();
-                    return null;
+                const res = await fetch(`${API_BASE}/users/me`, { headers: getHeaders() });
+                if (!res.ok) throw new Error();
+                currentUser = await res.json();
+                
+                document.getElementById('userInfoText').textContent = `${currentUser.username} (${currentUser.role})`;
+                
+                if (currentUser.role === 'admin') {
+                    document.getElementById('adminControls').classList.remove('hidden');
                 }
-                return response;
-            } catch (error) {
-                console.error("API Error:", error);
-                return null;
+            } catch (e) {
+                logout();
             }
         }
 
         function logout() {
-            localStorage.removeItem("token");
-            window.location.href = "/";
+            localStorage.removeItem('access_token');
+            window.location.href = '/';
         }
 
-        async function checkAuth() {
-            const res = await fetchWithAuth(API_URL + "/users/me");
-            if (res && res.ok) {
-                const user = await res.json();
-                document.getElementById("userInfoText").textContent = user.username;
-                document.getElementById("userInfo").classList.remove("hidden");
+        // Stats
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/api/stats`, { headers: getHeaders() });
+                const stats = await res.json();
                 
-                if (user.role === "admin") {
-                    isAdmin = true;
-                    document.getElementById("adminControls").classList.remove("hidden");
-                }
-                loadData();
+                document.getElementById('statTotalPlaylists').textContent = stats.total_playlists;
+                document.getElementById('statTotalTracks').textContent = stats.total_tracks.toLocaleString();
+                document.getElementById('statTotalRecords').textContent = stats.total_records.toLocaleString();
+                document.getElementById('statLastUpdate').textContent = stats.last_update 
+                    ? new Date(stats.last_update).toLocaleDateString() 
+                    : 'Never';
+            } catch (e) {
+                console.error('Error loading stats', e);
             }
         }
 
-        // --- DATA LOADING ---
+        // Data Loading
         async function loadData() {
-            document.getElementById("loadingSpinner").classList.remove("hidden");
-            document.getElementById("summaryTable").classList.add("hidden");
+            const spinner = document.getElementById('loadingSpinner');
+            const noData = document.getElementById('noDataMessage');
+            const tbodySum = document.getElementById('summaryBody');
+            const tbodyFull = document.getElementById('fullBody');
             
-            // 1. Load Stats
-            const statsRes = await fetchWithAuth(API_URL + "/stats");
-            if (statsRes && statsRes.ok) {
-                const stats = await statsRes.json();
-                document.getElementById("statTotalPlaylists").textContent = stats.total_playlists;
-                document.getElementById("statTotalTracks").textContent = stats.total_tracks;
-                document.getElementById("statTotalRecords").textContent = stats.total_records.toLocaleString();
-                document.getElementById("statLastUpdate").textContent = stats.last_update ? new Date(stats.last_update).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Never";
-            }
+            spinner.classList.remove('hidden');
+            noData.classList.add('hidden');
+            tbodySum.innerHTML = '';
+            tbodyFull.innerHTML = '';
 
-            // 2. Load Playlists for Filter
-            const plRes = await fetchWithAuth(API_URL + "/playlists");
-            if (plRes && plRes.ok) {
-                playlistsData = await plRes.json();
-                const filter = document.getElementById("playlistFilter");
-                filter.innerHTML = '<option value="">All Playlists</option>';
-                playlistsData.forEach(p => {
-                    filter.innerHTML += `<option value="${p.id}">${p.custom_name || p.name}</option>`;
-                });
-            }
-
-            // 3. Load Summary Data
-            const sumRes = await fetchWithAuth(API_URL + "/summary");
-            if (sumRes && sumRes.ok) {
-                const data = await sumRes.json();
-                summaryData = data.tracks;
-                allData = data.tracks; // Default view
+            try {
+                const playlistId = document.getElementById('playlistFilter').value;
+                const params = playlistId ? `?playlist_id=${playlistId}` : '';
                 
-                // Update Overall Totals
-                const total = data.overall_total;
-                if (total) {
-                    document.getElementById("overallPlaylists").textContent = total.total_playlists;
-                    document.getElementById("overallTracks").textContent = total.total_tracks;
-                    document.getElementById("overallTotal").textContent = total.total_streams.toLocaleString();
-                    document.getElementById("overallDaily").textContent = `+${total.daily_streams.toLocaleString()}`;
-                    document.getElementById("overallWeekly").textContent = `+${total.weekly_streams.toLocaleString()}`;
-                    document.getElementById("overallMonthly").textContent = `+${total.monthly_streams.toLocaleString()}`;
+                const [resSummary, resFull, resSheets] = await Promise.all([
+                    fetch(`${API_BASE}/api/summary${params}`, { headers: getHeaders() }),
+                    fetch(`${API_BASE}/api/full_data${params}`, { headers: getHeaders() }),
+                    fetch(`${API_BASE}/api/sheets_view`, { headers: getHeaders() })
+                ]);
+                
+                summaryData = await resSummary.json();
+                cachedSummary = summaryData.tracks || [];
+                cachedFull = await resFull.json();
+                cachedSheets = await resSheets.json();
+                
+                if (cachedSummary.length === 0 && cachedFull.length === 0) {
+                    noData.classList.remove('hidden');
+                } else {
+                    renderSummary(cachedSummary);
+                    renderFull(cachedFull);
+                    renderTotals(summaryData);
+                    renderSheets(cachedSheets);
                 }
-
-                // Render Playlist-wise Breakdown
-                renderPlaylistTotals(data.playlist_totals);
-            }
-
-            // 4. Load Sheets View
-            const sheetsRes = await fetchWithAuth(API_URL + "/sheets_view");
-            if (sheetsRes && sheetsRes.ok) {
-                const sheets = await sheetsRes.json();
-                renderSheets(sheets);
-            }
-
-            renderTable(allData);
-            document.getElementById("loadingSpinner").classList.add("hidden");
-            
-            if (allData.length === 0) {
-                document.getElementById("noDataMessage").classList.remove("hidden");
-            } else {
-                document.getElementById("summaryTable").classList.remove("hidden");
-                document.getElementById("noDataMessage").classList.add("hidden");
+                
+                await loadStats();
+            } catch (e) {
+                console.error('Error loading data', e);
+                showNotification('Error loading data', 'error');
+            } finally {
+                spinner.classList.add('hidden');
             }
         }
 
-        // --- RENDERING ---
-        function renderTable(data) {
-            const tbody = document.getElementById("summaryBody");
-            tbody.innerHTML = "";
-            
-            data.forEach(row => {
-                const statusColor = row.status === 'ok' ? 'bg-green-900/50 text-green-300' :
-                                  row.status === 'new' ? 'bg-blue-900/50 text-blue-300' :
-                                  row.status === 'reset' ? 'bg-red-900/50 text-red-300' :
-                                  row.status === 'imputed' ? 'bg-yellow-900/50 text-yellow-300' : 
-                                  'bg-gray-700 text-gray-400';
-                                  
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-gray-800 transition border-b border-gray-700 last:border-0";
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-white">${row.track}</td>
-                    <td class="px-6 py-4">${row.artist}</td>
-                    <td class="px-6 py-4">
-                        <span class="bg-gray-700 px-2 py-1 rounded text-xs text-gray-300">${row.playlist}</span>
-                    </td>
-                    <td class="px-6 py-4 text-right font-mono">${row.total.toLocaleString()}</td>
-                    <td class="px-6 py-4 text-right font-mono text-green-400">+${row.daily.toLocaleString()}</td>
-                    <td class="px-6 py-4 text-right font-mono text-blue-400">+${row.weekly.toLocaleString()}</td>
-                    <td class="px-6 py-4 text-right font-mono text-purple-400">+${row.monthly.toLocaleString()}</td>
+        // Rendering
+        function renderSummary(data) {
+            const tbody = document.getElementById('summaryBody');
+            tbody.innerHTML = data.map(row => `
+                <tr class="bg-gray-800 hover:bg-gray-750 transition">
+                    <td class="px-6 py-4 font-medium text-white">${escapeHtml(row.track)}</td>
+                    <td class="px-6 py-4 text-gray-300">${escapeHtml(row.artist)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">${escapeHtml(row.playlist)}</td>
+                    <td class="px-6 py-4 text-right font-mono text-white">${row.total.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.daily)}">${formatChange(row.daily)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.weekly)}">${formatChange(row.weekly)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.monthly)}">${formatChange(row.monthly)}</td>
+                    <td class="px-6 py-4 text-center">${getStatusBadge(row.status)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderFull(data) {
+            const tbody = document.getElementById('fullBody');
+            tbody.innerHTML = data.map(row => `
+                <tr class="bg-gray-800 hover:bg-gray-750 transition ${row.is_imputed ? 'bg-yellow-900/10' : ''}">
+                    <td class="px-6 py-4 text-gray-300">${row.date}</td>
+                    <td class="px-6 py-4 font-medium text-white">${escapeHtml(row.track)}</td>
+                    <td class="px-6 py-4 text-gray-300">${escapeHtml(row.artist)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">${escapeHtml(row.playlist)}</td>
+                    <td class="px-6 py-4 text-right font-mono text-white">${row.streams.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.change)}">${formatChange(row.change)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.weekly)}">${formatChange(row.weekly)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.monthly)}">${formatChange(row.monthly)}</td>
                     <td class="px-6 py-4 text-center">
-                        <span class="${statusColor} px-2 py-1 rounded text-xs uppercase font-bold">${row.status}</span>
+                        <div class="flex gap-1 justify-center flex-wrap">
+                            ${row.is_new ? '<span class="px-2 py-1 text-xs font-semibold text-blue-200 bg-blue-900/50 rounded">New</span>' : ''}
+                            ${row.is_imputed ? '<span class="px-2 py-1 text-xs font-semibold text-yellow-200 bg-yellow-900/50 rounded">Imputed</span>' : ''}
+                            ${row.is_reset ? '<span class="px-2 py-1 text-xs font-semibold text-red-200 bg-red-900/50 rounded">Reset</span>' : ''}
+                            ${row.is_hidden ? '<span class="px-2 py-1 text-xs font-semibold text-gray-200 bg-gray-700 rounded">Hidden</span>' : ''}
+                            ${!row.is_new && !row.is_imputed && !row.is_reset && !row.is_hidden ? '<span class="text-gray-600">-</span>' : ''}
+                        </div>
                     </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                </tr>
+            `).join('');
         }
 
-        function renderPlaylistTotals(totals) {
-            const container = document.getElementById("playlistTotalsContainer");
-            container.innerHTML = "";
+        function renderTotals(data) {
+            if (!data || !data.overall_total) return;
             
-            totals.forEach(p => {
-                const html = `
-                    <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-bold text-white text-lg">${p.playlist_name}</h4>
-                            <span class="text-sm bg-gray-700 px-2 py-1 rounded text-gray-300">${p.track_count} Tracks</span>
+            const overall = data.overall_total;
+            
+            // Overall totals
+            document.getElementById('overallPlaylists').textContent = overall.total_playlists || 0;
+            document.getElementById('overallTracks').textContent = (overall.total_tracks || 0).toLocaleString();
+            document.getElementById('overallTotal').textContent = (overall.total_streams || 0).toLocaleString();
+            document.getElementById('overallDaily').textContent = formatChange(overall.daily_streams || 0);
+            document.getElementById('overallWeekly').textContent = formatChange(overall.weekly_streams || 0);
+            document.getElementById('overallMonthly').textContent = formatChange(overall.monthly_streams || 0);
+            
+            // Playlist-wise cards
+            const container = document.getElementById('playlistTotalsContainer');
+            const playlistTotals = data.playlist_totals || [];
+            
+            container.innerHTML = playlistTotals.map(p => `
+                <div class="bg-gray-750 border border-gray-700 rounded-xl p-6 hover:border-green-500/50 transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-white">${escapeHtml(p.playlist_name)}</h4>
+                            <p class="text-sm text-gray-400">${p.track_count} tracks</p>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div>
-                                <p class="text-gray-500">Total</p>
-                                <p class="text-white font-mono">${p.total_streams.toLocaleString()}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500">Daily</p>
-                                <p class="text-green-400 font-mono">+${p.daily_streams.toLocaleString()}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500">Weekly</p>
-                                <p class="text-blue-400 font-mono">+${p.weekly_streams.toLocaleString()}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500">Monthly</p>
-                                <p class="text-purple-400 font-mono">+${p.monthly_streams.toLocaleString()}</p>
-                            </div>
+                        <div class="px-3 py-1 bg-green-900/30 text-green-400 rounded-lg text-sm font-semibold">
+                            ${(p.total_streams || 0).toLocaleString()}
                         </div>
                     </div>
-                `;
-                container.innerHTML += html;
-            });
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <p class="text-xs text-gray-400 mb-1">Daily</p>
+                            <p class="text-lg font-bold ${getColor(p.daily_streams)}">${formatChange(p.daily_streams)}</p>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <p class="text-xs text-gray-400 mb-1">Weekly</p>
+                            <p class="text-lg font-bold ${getColor(p.weekly_streams)}">${formatChange(p.weekly_streams)}</p>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <p class="text-xs text-gray-400 mb-1">Monthly</p>
+                            <p class="text-lg font-bold ${getColor(p.monthly_streams)}">${formatChange(p.monthly_streams)}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderSheets(sheets) {
-            const container = document.getElementById("sheetsContainer");
-            container.innerHTML = "";
+            const container = document.getElementById('sheetsContainer');
             
-            sheets.forEach(sheet => {
-                let statusBadge = "";
-                if (sheet.status === "Updating...") {
-                    statusBadge = `<span class="bg-yellow-900/50 text-yellow-300 px-2 py-1 rounded text-xs animate-pulse">Updating...</span>`;
-                } else if (sheet.status === "Updated") {
-                    statusBadge = `<span class="bg-green-900/50 text-green-300 px-2 py-1 rounded text-xs">Updated</span>`;
-                } else if (sheet.status === "Failed") {
-                    statusBadge = `<span class="bg-red-900/50 text-red-300 px-2 py-1 rounded text-xs">Failed</span>`;
-                } else {
-                    statusBadge = `<span class="bg-gray-700 text-gray-400 px-2 py-1 rounded text-xs">Idle</span>`;
-                }
-
-                let rows = sheet.tracks.map((t, i) => `
-                    <tr class="hover:bg-gray-750 border-b border-gray-700">
-                        <td class="px-4 py-2">${i + 1}</td>
-                        <td class="px-4 py-2 font-medium text-white">
-                            <a href="${t.url}" target="_blank" class="hover:underline hover:text-green-400">${t.track}</a>
-                        </td>
-                        <td class="px-4 py-2">${t.artist}</td>
-                        <td class="px-4 py-2 text-right font-mono">${t.total.toLocaleString()}</td>
-                        <td class="px-4 py-2 text-right font-mono text-green-400">+${t.daily.toLocaleString()}</td>
-                        <td class="px-4 py-2 text-right font-mono text-blue-400">+${t.weekly.toLocaleString()}</td>
-                        <td class="px-4 py-2 text-right font-mono text-purple-400">+${t.monthly.toLocaleString()}</td>
-                        <td class="px-4 py-2 text-center">
-                            <span class="text-xs uppercase font-bold ${t.status === 'ok' ? 'text-green-500' : 'text-yellow-500'}">${t.status}</span>
-                        </td>
-                    </tr>
-                `).join("");
-
-                const html = `
-                    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-                        <div class="p-4 bg-gray-900 border-b border-gray-700 flex justify-between items-center">
-                            <div class="flex items-center gap-4">
-                                <div class="bg-green-600 w-2 h-8 rounded-full"></div>
-                                <div>
-                                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                                        ${sheet.playlist_name}
-                                        <button onclick="renamePlaylist(${sheet.playlist_id}, '${sheet.playlist_name}')" class="text-gray-500 hover:text-white transition" title="Rename">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                            </svg>
-                                        </button>
-                                    </h3>
-                                    <div class="text-xs text-gray-400 flex gap-2 items-center">
-                                        <span>${sheet.totals.track_count} tracks</span>
-                                        <span>•</span>
-                                        <a href="${sheet.playlist_url}" target="_blank" class="hover:text-green-400">Open in Spotify</a>
-                                    </div>
+            container.innerHTML = sheets.map((sheet, idx) => `
+                <div class="bg-gray-750 border-2 border-gray-700 rounded-xl overflow-hidden">
+                    <!-- Sheet Header -->
+                    <div class="bg-gradient-to-r from-green-900/30 to-blue-900/30 border-b-2 border-green-500/50 p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">
+                                    Sheet ${idx + 1}: ${escapeHtml(sheet.playlist_name)}
+                                </h3>
+                                <div class="flex gap-4 text-sm text-gray-400">
+                                    <span>📊 ${sheet.tracks.length} tracks</span>
+                                    <span class="${sheet.is_active ? 'text-green-400' : 'text-gray-500'}">
+                                        ${sheet.is_active ? '● Active' : '○ Inactive'}
+                                    </span>
+                                    <span>🕐 ${sheet.last_updated ? new Date(sheet.last_updated).toLocaleDateString() : 'Never updated'}</span>
                                 </div>
                             </div>
-                            <div class="flex gap-4 items-center">
-                                <div class="text-right">
-                                    <p class="text-xs text-gray-500">Total Streams</p>
-                                    <p class="font-mono font-bold text-white">${sheet.totals.total_streams.toLocaleString()}</p>
-                                </div>
-                                ${statusBadge}
-                            </div>
-                        </div>
-                        
-                        <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
-                            <table class="w-full text-sm text-left text-gray-400">
-                                <thead class="text-xs text-gray-500 uppercase bg-gray-800 sticky top-0">
-                                    <tr>
-                                        <th class="px-4 py-2">#</th>
-                                        <th class="px-4 py-2">Track</th>
-                                        <th class="px-4 py-2">Artist</th>
-                                        <th class="px-4 py-2 text-right">Total</th>
-                                        <th class="px-4 py-2 text-right">Daily</th>
-                                        <th class="px-4 py-2 text-right">Weekly</th>
-                                        <th class="px-4 py-2 text-right">Monthly</th>
-                                        <th class="px-4 py-2 text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-700">
-                                    ${rows}
-                                </tbody>
-                            </table>
+                            <a href="${sheet.playlist_url}" target="_blank" 
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                                </svg>
+                                Open in Spotify
+                            </a>
                         </div>
                     </div>
-                `;
-                container.innerHTML += html;
-            });
+                    
+                    <!-- Totals Row -->
+                    <div class="bg-gray-800 border-b border-gray-700 p-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Total Streams</p>
+                                    <p class="text-lg font-bold text-white">${sheet.totals.total_streams.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Daily</p>
+                                    <p class="text-lg font-bold ${getColor(sheet.totals.daily_streams)}">${formatChange(sheet.totals.daily_streams)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Weekly</p>
+                                    <p class="text-lg font-bold ${getColor(sheet.totals.weekly_streams)}">${formatChange(sheet.totals.weekly_streams)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Monthly</p>
+                                    <p class="text-lg font-bold ${getColor(sheet.totals.monthly_streams)}">${formatChange(sheet.totals.monthly_streams)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tracks Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="text-xs text-gray-300 uppercase bg-gray-800 border-b border-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">#</th>
+                                    <th class="px-4 py-3 text-left">Track</th>
+                                    <th class="px-4 py-3 text-left">Artist</th>
+                                    <th class="px-4 py-3 text-right">Total</th>
+                                    <th class="px-4 py-3 text-right">Daily</th>
+                                    <th class="px-4 py-3 text-right">Weekly</th>
+                                    <th class="px-4 py-3 text-right">Monthly</th>
+                                    <th class="px-4 py-3 text-center">Status</th>
+                                    <th class="px-4 py-3 text-center">Link</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                ${sheet.tracks.map((track, trackIdx) => `
+                                    <tr class="hover:bg-gray-800/50 transition">
+                                        <td class="px-4 py-3 text-gray-500">${trackIdx + 1}</td>
+                                        <td class="px-4 py-3 font-medium text-white">${escapeHtml(track.track)}</td>
+                                        <td class="px-4 py-3 text-gray-300">${escapeHtml(track.artist)}</td>
+                                        <td class="px-4 py-3 text-right font-mono text-white">${track.total.toLocaleString()}</td>
+                                        <td class="px-4 py-3 text-right font-mono ${getColor(track.daily)}">${formatChange(track.daily)}</td>
+                                        <td class="px-4 py-3 text-right font-mono ${getColor(track.weekly)}">${formatChange(track.weekly)}</td>
+                                        <td class="px-4 py-3 text-right font-mono ${getColor(track.monthly)}">${formatChange(track.monthly)}</td>
+                                        <td class="px-4 py-3 text-center">${getStatusBadge(track.status)}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <a href="${track.url}" target="_blank" class="text-green-400 hover:text-green-300 transition">
+                                                <svg class="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // --- ACTIONS ---
-        async function forceUpdate() {
-            if (!confirm("Start manual update? This will run in the background.")) return;
-            const res = await fetchWithAuth(API_URL + "/force_update", { method: "POST" });
-            if (res.ok) alert("Update started!");
+        // Helpers
+        function formatChange(val) {
+            if (val > 0) return `+${val.toLocaleString()}`;
+            if (val < 0) return `${val.toLocaleString()}`;
+            return '-';
         }
 
-        async function addPlaylist() {
-            const url = document.getElementById("playlistUrl").value;
-            if (!url) return alert("Please enter a URL");
+        function getColor(val) {
+            if (val > 0) return 'text-green-400';
+            if (val < 0) return 'text-red-400';
+            return 'text-gray-500';
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'new': '<span class="px-2 py-1 text-xs font-semibold text-blue-200 bg-blue-900/50 border border-blue-700 rounded status-badge">New</span>',
+                'imputed': '<span class="px-2 py-1 text-xs font-semibold text-yellow-200 bg-yellow-900/50 border border-yellow-700 rounded status-badge">Imputed</span>',
+                'reset': '<span class="px-2 py-1 text-xs font-semibold text-red-200 bg-red-900/50 border border-red-700 rounded status-badge">Reset</span>',
+                'hidden': '<span class="px-2 py-1 text-xs font-semibold text-gray-200 bg-gray-700 border border-gray-600 rounded status-badge">Hidden</span>',
+                'ok': '<span class="px-2 py-1 text-xs font-semibold text-green-200 bg-green-900/30 border border-green-800 rounded status-badge">OK</span>'
+            };
+            return badges[status] || badges['ok'];
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // UI Logic
+        function switchTab(tab) {
+            currentTab = tab;
             
-            const res = await fetchWithAuth(API_URL + "/playlists", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: url })
+            // Reset all tabs
+            ['summary', 'totals', 'sheets', 'full'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (btn) {
+                    btn.className = 'px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap';
+                }
             });
             
-            if (res.ok) {
-                alert("Playlist added successfully!");
-                document.getElementById("playlistUrl").value = "";
-                loadData();
-            } else {
-                const err = await res.json();
-                alert("Error: " + err.detail);
+            // Activate current tab
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = 'px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap';
+            }
+            
+            // Show/hide content
+            document.getElementById('summaryTable').classList.add('hidden');
+            document.getElementById('totalsView').classList.add('hidden');
+            document.getElementById('sheetsView').classList.add('hidden');
+            document.getElementById('fullTable').classList.add('hidden');
+            
+            if (tab === 'summary') {
+                document.getElementById('summaryTable').classList.remove('hidden');
+            } else if (tab === 'totals') {
+                document.getElementById('totalsView').classList.remove('hidden');
+            } else if (tab === 'sheets') {
+                document.getElementById('sheetsView').classList.remove('hidden');
+            } else if (tab === 'full') {
+                document.getElementById('fullTable').classList.remove('hidden');
+            }
+            
+            filterTable();
+        }
+
+        function filterTable() {
+            const query = document.getElementById('tableSearch').value.toLowerCase();
+            const targetBody = currentTab === 'summary' ? 'summaryBody' : 'fullBody';
+            const rows = document.getElementById(targetBody).getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
             }
         }
 
-        async function renamePlaylist(id, currentName) {
-            const newName = prompt("Enter new display name for this playlist:", currentName);
-            if (newName && newName !== currentName) {
-                const res = await fetchWithAuth(API_URL + `/playlists/${id}/rename`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ custom_name: newName })
-                });
-                if (res.ok) {
-                    loadData(); // Refresh to see name
-                } else {
-                    alert("Failed to rename");
+        function filterByPlaylist() {
+            loadData();
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            const sorted = [...cachedSummary].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+                
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
                 }
+                
+                if (currentSort.direction === 'asc') {
+                    return valA > valB ? 1 : -1;
+                } else {
+                    return valA < valB ? 1 : -1;
+                }
+            });
+
+            renderSummary(sorted);
+            
+            // Update sort indicators
+            document.querySelectorAll('[id^="sort-"]').forEach(el => el.textContent = '');
+            const indicator = currentSort.direction === 'asc' ? '↑' : '↓';
+            document.getElementById(`sort-${column}`).textContent = indicator;
+        }
+
+        // Playlists
+        async function loadPlaylists() {
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, { headers: getHeaders() });
+                allPlaylists = await res.json();
+                
+                const filter = document.getElementById('playlistFilter');
+                filter.innerHTML = '<option value="">All Playlists</option>' + 
+                    allPlaylists.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+            } catch (e) {
+                console.error('Error loading playlists', e);
+            }
+        }
+
+        async function addPlaylist() {
+            const url = document.getElementById('playlistUrl').value.trim();
+            if (!url) return showNotification('Please enter a URL', 'error');
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ url })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    showNotification(data.message, 'success');
+                    document.getElementById('playlistUrl').value = '';
+                    await loadPlaylists();
+                    await loadStats();
+                } else {
+                    const error = await res.json();
+                    showNotification(error.detail || 'Error adding playlist', 'error');
+                }
+            } catch (e) {
+                showNotification('Network error', 'error');
+            }
+        }
+
+        async function forceUpdate() {
+            if (!confirm('Start background scraper? This may take several minutes.')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/force_update`, { 
+                    method: 'POST', 
+                    headers: getHeaders() 
+                });
+                
+                if (res.ok) {
+                    showNotification('Update triggered! Check logs for progress.', 'success');
+                }
+            } catch (e) {
+                showNotification('Error triggering update', 'error');
+            }
+        }
+
+        // Modals
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        async function openLogsModal() {
+            openModal('logsModal');
+            try {
+                const res = await fetch(`${API_BASE}/api/logs?limit=100`, { headers: getHeaders() });
+                const logs = await res.json();
+                
+                document.getElementById('logsContent').innerHTML = logs.map(l => `
+                    <div class="p-3 bg-gray-700 rounded border-l-4 ${
+                        l.status === 'Success' ? 'border-green-500' : 
+                        l.status === 'Failure' ? 'border-red-500' : 'border-blue-500'
+                    }">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-gray-400">${new Date(l.timestamp).toLocaleString()}</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded ${
+                                l.status === 'Success' ? 'bg-green-900 text-green-200' : 
+                                l.status === 'Failure' ? 'bg-red-900 text-red-200' : 'bg-blue-900 text-blue-200'
+                            }">${l.status}</span>
+                        </div>
+                        <div class="text-white">${escapeHtml(l.message)}</div>
+                        ${l.playlist_name ? `<div class="text-gray-500 text-xs mt-1">Playlist: ${escapeHtml(l.playlist_name)}</div>` : ''}
+                        ${l.error_details ? `<div class="text-red-400 text-xs mt-1">${escapeHtml(l.error_details)}</div>` : ''}
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('logsContent').innerHTML = '<p class="text-red-400">Error loading logs</p>';
             }
         }
 
         async function openPlaylistsModal() {
-            const modal = document.getElementById("playlistsModal");
-            const list = document.getElementById("playlistsList");
-            list.innerHTML = '<div class="text-center text-gray-500">Loading...</div>';
-            modal.classList.add("active");
-            
-            const res = await fetchWithAuth(API_URL + "/playlists");
-            if (res && res.ok) {
+            openModal('playlistsModal');
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, { headers: getHeaders() });
                 const playlists = await res.json();
-                list.innerHTML = "";
-                playlists.forEach(p => {
-                    list.innerHTML += `
-                        <div class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
-                            <div>
-                                <p class="text-white font-medium">${p.custom_name || p.name}</p>
-                                <p class="text-xs text-gray-400">${p.url}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="renamePlaylist(${p.id}, '${p.custom_name || p.name}')" class="text-gray-400 hover:text-white p-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                </button>
-                                <button onclick="deletePlaylist(${p.id})" class="text-red-400 hover:text-red-300 p-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
+                
+                document.getElementById('playlistsList').innerHTML = playlists.map(p => `
+                    <div class="p-4 bg-gray-700 rounded-lg flex justify-between items-center">
+                        <div class="flex-1">
+                            <div class="font-semibold text-white">${escapeHtml(p.name)}</div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                ${p.track_count} tracks | 
+                                ${p.is_active ? '<span class="text-green-400">Active</span>' : '<span class="text-gray-500">Inactive</span>'} |
+                                Last: ${p.last_updated ? new Date(p.last_updated).toLocaleDateString() : 'Never'}
                             </div>
                         </div>
-                    `;
+                        <div class="flex gap-2">
+                            <button onclick="togglePlaylistActive(${p.id}, ${p.is_active})" 
+                                class="px-3 py-1 text-sm rounded ${p.is_active ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} text-white transition">
+                                ${p.is_active ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button onclick="deletePlaylist(${p.id})" 
+                                class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('playlistsList').innerHTML = '<p class="text-red-400">Error loading playlists</p>';
+            }
+        }
+
+        async function togglePlaylistActive(id, currentState) {
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ is_active: !currentState })
                 });
+                
+                if (res.ok) {
+                    showNotification('Playlist updated', 'success');
+                    openPlaylistsModal();
+                    await loadPlaylists();
+                }
+            } catch (e) {
+                showNotification('Error updating playlist', 'error');
             }
         }
 
         async function deletePlaylist(id) {
-            if (!confirm("Are you sure? This will delete all history for this playlist.")) return;
-            const res = await fetchWithAuth(API_URL + "/playlists/" + id, { method: "DELETE" });
-            if (res.ok) {
-                openPlaylistsModal();
-                loadData();
+            if (!confirm('Delete this playlist and all its data?')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                if (res.ok) {
+                    showNotification('Playlist deleted', 'success');
+                    openPlaylistsModal();
+                    await loadPlaylists();
+                    await loadData();
+                }
+            } catch (e) {
+                showNotification('Error deleting playlist', 'error');
             }
         }
 
-        // --- TABS & UI ---
-        function switchTab(tabName) {
-            // Hide all views
-            ['summaryTable', 'totalsView', 'sheetsView', 'fullTable'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            
-            // Reset tab styles
-            ['tab-summary', 'tab-totals', 'tab-sheets', 'tab-full'].forEach(id => {
-                document.getElementById(id).className = "px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap";
-            });
-
-            // Show selected view & active tab style
-            const activeClass = "px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap";
-            
-            if (tabName === 'summary') {
-                document.getElementById('summaryTable').classList.remove('hidden');
-                document.getElementById('tab-summary').className = activeClass;
-            } else if (tabName === 'totals') {
-                document.getElementById('totalsView').classList.remove('hidden');
-                document.getElementById('tab-totals').className = activeClass;
-            } else if (tabName === 'sheets') {
-                document.getElementById('sheetsView').classList.remove('hidden');
-                document.getElementById('tab-sheets').className = activeClass;
-            } else if (tabName === 'full') {
-                document.getElementById('fullTable').classList.remove('hidden');
-                document.getElementById('tab-full').className = activeClass;
-                loadFullHistory();
-            }
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove("active");
-        }
-
-        function openLogsModal() {
-            document.getElementById("logsModal").classList.add("active");
-            loadLogs();
-        }
-
-        async function loadLogs() {
-            const res = await fetchWithAuth(API_URL + "/logs");
-            if (res && res.ok) {
-                const logs = await res.json();
-                const container = document.getElementById("logsContent");
-                container.innerHTML = logs.map(l => `
-                    <div class="border-b border-gray-700 pb-1 mb-1">
-                        <span class="text-gray-500">[${new Date(l.timestamp).toLocaleTimeString()}]</span>
-                        <span class="${l.status === 'Success' ? 'text-green-400' : 'text-red-400'} font-bold">${l.status}</span>
-                        <span class="text-gray-300 ml-2">${l.message}</span>
-                        ${l.playlist_name ? `<span class="bg-gray-700 text-xs px-1 rounded ml-2">${l.playlist_name}</span>` : ''}
+        async function openUsersModal() {
+            openModal('usersModal');
+            try {
+                const res = await fetch(`${API_BASE}/api/users`, { headers: getHeaders() });
+                const users = await res.json();
+                
+                document.getElementById('usersList').innerHTML = users.map(u => `
+                    <div class="p-4 bg-gray-700 rounded-lg flex justify-between items-center">
+                        <div>
+                            <div class="font-semibold text-white">${escapeHtml(u.username)}</div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                Role: ${u.role} | Joined: ${new Date(u.created_at).toLocaleDateString()}
+                            </div>
+                        </div>
+                        ${u.username !== 'admin' ? `
+                            <button onclick="deleteUser(${u.id})" 
+                                class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition">
+                                Delete
+                            </button>
+                        ` : '<span class="text-xs text-gray-500">Default Admin</span>'}
                     </div>
-                `).join("");
+                `).join('');
+            } catch (e) {
+                document.getElementById('usersList').innerHTML = '<p class="text-red-400">Error loading users</p>';
             }
         }
 
-        // Init
-        checkAuth();
+        async function createUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+            
+            if (!username || !password) return showNotification('Fill all fields', 'error');
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/users`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username, password, role })
+                });
+                
+                if (res.ok) {
+                    showNotification('User created', 'success');
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newPassword').value = '';
+                    openUsersModal();
+                } else {
+                    const error = await res.json();
+                    showNotification(error.detail || 'Error creating user', 'error');
+                }
+            } catch (e) {
+                showNotification('Network error', 'error');
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Delete this user?')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/users/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                if (res.ok) {
+                    showNotification('User deleted', 'success');
+                    openUsersModal();
+                }
+            } catch (e) {
+                showNotification('Error deleting user', 'error');
+            }
+        }
+
+        function openPasswordModal() {
+            openModal('passwordModal');
+        }
+
+        async function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPasswordField').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                return showNotification('Fill all fields', 'error');
+            }
+            
+            if (newPassword !== confirmPassword) {
+                return showNotification('Passwords do not match', 'error');
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/change-password`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+                });
+                
+                if (res.ok) {
+                    showNotification('Password changed successfully', 'success');
+                    closeModal('passwordModal');
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPasswordField').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    const error = await res.json();
+                    showNotification(error.detail || 'Error changing password', 'error');
+                }
+            } catch (e) {
+                showNotification('Network error', 'error');
+            }
+        }
+
+        // Notifications
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-600',
+                error: 'bg-red-600',
+                info: 'bg-blue-600'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close modals on background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
