@@ -23,6 +23,12 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True, index=True)
     spotify_id = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
+    
+    # --- NEW COLUMNS (Manually added in DB) ---
+    custom_name = Column(String, nullable=True) 
+    status = Column(String, default="Idle") 
+    # ------------------------------------------
+
     url = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     last_updated = Column(DateTime, nullable=True)
@@ -37,8 +43,8 @@ class Track(Base):
     __tablename__ = "tracks"
     id = Column(Integer, primary_key=True, index=True)
     
-    # --- FIX IS HERE: Removed 'unique=True' ---
-    spotify_id = Column(String, index=True, nullable=False)
+    # Removed unique=True to allow duplicates across playlists
+    spotify_id = Column(String, index=True, nullable=False) 
     
     name = Column(String, nullable=False)
     artist = Column(String, nullable=False)
