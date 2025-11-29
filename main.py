@@ -8,12 +8,12 @@ from datetime import datetime, timedelta, date
 from typing import List, Optional
 import re
 
-from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, func, desc
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -25,9 +25,6 @@ from db_models import Base, User, Playlist, Track, StreamHistory, UpdateLog
 
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./stream_tracker.db")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
@@ -74,10 +71,6 @@ class PlaylistCreate(BaseModel):
 class PlaylistUpdate(BaseModel):
     name: Optional[str] = None
     is_active: Optional[bool] = None
-
-# --- NEW: Model for Renaming ---
-class PlaylistRename(BaseModel):
-    custom_name: str
 
 # Dependencies
 def get_db():
@@ -133,14 +126,14 @@ def send_daily_summary_email(db: Session):
     
     if not SENDER_EMAIL or not SENDER_PASSWORD:
         print("✗ Email credentials not set. Skipping email.")
-        return False
+        return
 
     # Get today's stats
     latest_date = db.query(func.max(StreamHistory.date)).scalar()
     
     if not latest_date:
         print("✗ No data found to email.")
-        return False
+        return
 
     # Aggregate Data
     stats = db.query(
@@ -262,10 +255,6 @@ def run_tracker_job():
             except Exception as e:
                 error_msg = str(e)
                 print(f"✗ Error updating {playlist.name}: {error_msg}")
-                
-                # Mark as failed in DB status
-                playlist.status = "Failed"
-                db.commit()
                 
                 db.add(UpdateLog(
                     status="Failure",
@@ -495,8 +484,7 @@ async def add_playlist(
     new_playlist = Playlist(
         spotify_id=spotify_id,
         name=playlist_name,
-        url=playlist.url,
-        status="Idle"  # Set default status
+        url=playlist.url
     )
     db.add(new_playlist)
     db.commit()
@@ -511,11 +499,9 @@ async def get_playlists(
     return [{
         "id": p.id,
         "name": p.name,
-        "custom_name": p.custom_name, # Return custom name
         "url": p.url,
         "spotify_id": p.spotify_id,
         "is_active": p.is_active,
-        "status": p.status, # Return status
         "last_updated": p.last_updated.isoformat() if p.last_updated else None,
         "track_count": len(p.tracks)
     } for p in playlists]
@@ -538,22 +524,6 @@ async def update_playlist(
     
     db.commit()
     return {"message": "Playlist updated successfully"}
-
-# --- NEW: RENAME ENDPOINT ---
-@app.put("/api/playlists/{playlist_id}/rename")
-async def rename_playlist(
-    playlist_id: int,
-    rename_data: PlaylistRename,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    playlist = db.query(Playlist).filter(Playlist.id == playlist_id).first()
-    if not playlist:
-        raise HTTPException(status_code=404, detail="Playlist not found")
-    
-    playlist.custom_name = rename_data.custom_name
-    db.commit()
-    return {"message": "Playlist renamed successfully"}
 
 @app.delete("/api/playlists/{playlist_id}")
 async def delete_playlist(
@@ -654,18 +624,20 @@ async def get_sheets_view(
     Each playlist gets its own 'sheet' with all its tracks and totals.
     """
     latest_date = db.query(func.max(StreamHistory.date)).scalar()
+    if not latest_date:
+        return []
     
-    # Loop ALL playlists, even if no history yet (so "Updating..." shows)
     playlists = db.query(Playlist).all()
     sheets = []
     
     for playlist in playlists:
-        results = []
-        if latest_date:
-            results = db.query(StreamHistory).join(Track).filter(
-                Track.playlist_id == playlist.id,
-                StreamHistory.date == latest_date
-            ).all()
+        results = db.query(StreamHistory).join(Track).filter(
+            Track.playlist_id == playlist.id,
+            StreamHistory.date == latest_date
+        ).all()
+        
+        if not results:
+            continue
         
         tracks = [{
             "track": item.track.name,
@@ -683,18 +655,17 @@ async def get_sheets_view(
         totals = {
             "total_streams": sum(t["total"] for t in tracks),
             "daily_streams": sum(t["daily"] for t in tracks),
-            "weekly_streams": sum(t["weekly"] for t in tracks) if tracks else 0,
-            "monthly_streams": sum(t["monthly"] for t in tracks) if tracks else 0,
+            "weekly_streams": sum(t["weekly"] for t in tracks),
+            "monthly_streams": sum(t["monthly"] for t in tracks),
             "track_count": len(tracks)
         }
         
         sheets.append({
             "playlist_id": playlist.id,
-            "playlist_name": playlist.custom_name if playlist.custom_name else playlist.name, # Use custom name
+            "playlist_name": playlist.name,
             "playlist_url": playlist.url,
             "spotify_id": playlist.spotify_id,
             "is_active": playlist.is_active,
-            "status": playlist.status, # Send status to frontend
             "last_updated": playlist.last_updated.isoformat() if playlist.last_updated else None,
             "tracks": tracks,
             "totals": totals
