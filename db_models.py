@@ -23,11 +23,7 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True, index=True)
     spotify_id = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
-    
-    # --- ADDED: Custom name column to match your DB update ---
-    custom_name = Column(String, nullable=True)
-    # ---------------------------------------------------------
-
+    custom_name = Column(String, nullable=True)  # Added for frontend display
     url = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     last_updated = Column(DateTime, nullable=True)
@@ -41,10 +37,13 @@ class Track(Base):
     """
     __tablename__ = "tracks"
     id = Column(Integer, primary_key=True, index=True)
-    spotify_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # --- FIX IS HERE: Removed 'unique=True' ---
+    spotify_id = Column(String, index=True, nullable=False)
+    
     name = Column(String, nullable=False)
     artist = Column(String, nullable=False)
-    url = Column(String, nullable=True)
+    url = Column(String)
     
     playlist_id = Column(Integer, ForeignKey("playlists.id"))
     playlist = relationship("Playlist", back_populates="tracks")
@@ -83,7 +82,8 @@ class UpdateLog(Base):
     __tablename__ = "update_logs"
     id = Column(Integer, primary_key=True, index=True)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
-    status = Column(String, nullable=False)  # 'success', 'failed', 'running'
-    message = Column(String, nullable=True)
+    status = Column(String, nullable=False)  # 'Success' or 'Failure'
+    message = Column(String)
     playlist_name = Column(String, nullable=True)
+
     error_details = Column(String, nullable=True)
