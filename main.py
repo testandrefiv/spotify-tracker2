@@ -564,8 +564,46 @@ async def delete_playlist(
     return {"message": "Playlist deleted successfully"}
 
 # ============================================================================
-# DATA ENDPOINTS
+# DATA ENDPOINTS (UPDATED FOR NEW UI)
 # ============================================================================
+
+@app.get("/api/tracks")
+async def get_tracks(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns a list of all tracks to support client-side joining."""
+    tracks = db.query(Track).all()
+    return [{
+        "id": t.id,
+        "name": t.name,
+        "artist": t.artist,
+        "spotify_id": t.spotify_id,
+        "playlist_id": t.playlist_id,
+        "url": t.url
+    } for t in tracks]
+
+@app.get("/api/history")
+async def get_history(
+    limit: int = 2000,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Returns raw history data for client-side processing (Graphs/Sparklines)."""
+    history = db.query(StreamHistory).order_by(StreamHistory.date.desc()).limit(limit).all()
+    return [{
+        "id": h.id,
+        "date": h.date.isoformat(),
+        "track_id": h.track_id,
+        "total_streams": h.total_streams,
+        "daily_streams": h.daily_streams,
+        "weekly_streams": h.weekly_streams,
+        "monthly_streams": h.monthly_streams,
+        "is_imputed": h.is_imputed,
+        "is_reset": h.is_reset,
+        "is_new": h.is_new,
+        "is_hidden": h.is_hidden
+    } for h in history]
 
 @app.get("/api/summary")
 async def get_summary_data(
