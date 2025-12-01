@@ -25,8 +25,7 @@ from db_models import Base, User, Playlist, Track, StreamHistory, UpdateLog
 
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./stream_tracker.db")
-# Use a static key fallback or the env var to prevent logout on restart
-SECRET_KEY = os.getenv("SECRET_KEY", "CHANGE_THIS_TO_A_PERMANENT_RANDOM_STRING_IN_ENV_OR_HERE")
+SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
@@ -71,11 +70,7 @@ class PlaylistCreate(BaseModel):
 
 class PlaylistUpdate(BaseModel):
     name: Optional[str] = None
-    custom_name: Optional[str] = None
     is_active: Optional[bool] = None
-
-class PlaylistRename(BaseModel):
-    custom_name: str
 
 # Dependencies
 def get_db():
@@ -387,8 +382,7 @@ async def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# === CRITICAL FIX: Changed path to /api/users/me to match Dashboard ===
-@app.get("/api/users/me", response_model=UserData)
+@app.get("/users/me", response_model=UserData)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return {"username": current_user.username, "role": current_user.role}
 
@@ -505,8 +499,6 @@ async def get_playlists(
     return [{
         "id": p.id,
         "name": p.name,
-        "custom_name": p.custom_name,
-        "display_name": p.custom_name if p.custom_name else p.name,
         "url": p.url,
         "spotify_id": p.spotify_id,
         "is_active": p.is_active,
@@ -527,29 +519,11 @@ async def update_playlist(
     
     if update_data.name is not None:
         playlist.name = update_data.name
-    if update_data.custom_name is not None:
-        playlist.custom_name = update_data.custom_name
     if update_data.is_active is not None:
         playlist.is_active = update_data.is_active
     
     db.commit()
     return {"message": "Playlist updated successfully"}
-
-@app.put("/api/playlists/{playlist_id}/rename")
-async def rename_playlist(
-    playlist_id: int,
-    rename_data: PlaylistRename,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Rename playlist for frontend display only (saves to custom_name)"""
-    playlist = db.query(Playlist).filter(Playlist.id == playlist_id).first()
-    if not playlist:
-        raise HTTPException(status_code=404, detail="Playlist not found")
-    
-    playlist.custom_name = rename_data.custom_name.strip() if rename_data.custom_name else None
-    db.commit()
-    return {"message": "Playlist renamed successfully"}
 
 @app.delete("/api/playlists/{playlist_id}")
 async def delete_playlist(
@@ -566,46 +540,8 @@ async def delete_playlist(
     return {"message": "Playlist deleted successfully"}
 
 # ============================================================================
-# DATA ENDPOINTS (UPDATED FOR NEW UI)
+# DATA ENDPOINTS
 # ============================================================================
-
-@app.get("/api/tracks")
-async def get_tracks(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Returns a list of all tracks to support client-side joining."""
-    tracks = db.query(Track).all()
-    return [{
-        "id": t.id,
-        "name": t.name,
-        "artist": t.artist,
-        "spotify_id": t.spotify_id,
-        "playlist_id": t.playlist_id,
-        "url": t.url
-    } for t in tracks]
-
-@app.get("/api/history")
-async def get_history(
-    limit: int = 2000,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Returns raw history data for client-side processing (Graphs/Sparklines)."""
-    history = db.query(StreamHistory).order_by(StreamHistory.date.desc()).limit(limit).all()
-    return [{
-        "id": h.id,
-        "date": h.date.isoformat(),
-        "track_id": h.track_id,
-        "total_streams": h.total_streams,
-        "daily_streams": h.daily_streams,
-        "weekly_streams": h.weekly_streams,
-        "monthly_streams": h.monthly_streams,
-        "is_imputed": h.is_imputed,
-        "is_reset": h.is_reset,
-        "is_new": h.is_new,
-        "is_hidden": h.is_hidden
-    } for h in history]
 
 @app.get("/api/summary")
 async def get_summary_data(
@@ -630,7 +566,7 @@ async def get_summary_data(
     tracks = [{
         "track": item.track.name,
         "artist": item.track.artist,
-        "playlist": item.track.playlist.custom_name if item.track.playlist.custom_name else item.track.playlist.name,
+        "playlist": item.track.playlist.name,
         "playlist_id": item.track.playlist.id,
         "total": item.total_streams,
         "daily": item.daily_streams,
@@ -643,7 +579,7 @@ async def get_summary_data(
     playlist_totals = {}
     for item in results:
         pid = item.track.playlist.id
-        pname = item.track.playlist.custom_name if item.track.playlist.custom_name else item.track.playlist.name
+        pname = item.track.playlist.name
         
         if pid not in playlist_totals:
             playlist_totals[pid] = {
@@ -726,7 +662,7 @@ async def get_sheets_view(
         
         sheets.append({
             "playlist_id": playlist.id,
-            "playlist_name": playlist.custom_name if playlist.custom_name else playlist.name,
+            "playlist_name": playlist.name,
             "playlist_url": playlist.url,
             "spotify_id": playlist.spotify_id,
             "is_active": playlist.is_active,
@@ -755,7 +691,7 @@ async def get_full_data(
         "date": h.date.strftime("%Y-%m-%d"),
         "track": h.track.name,
         "artist": h.track.artist,
-        "playlist": h.track.playlist.custom_name if h.track.playlist.custom_name else h.track.playlist.name,
+        "playlist": h.track.playlist.name,
         "streams": h.total_streams,
         "change": h.daily_streams,
         "weekly": h.weekly_streams,
@@ -780,47 +716,6 @@ async def get_track_history(
         "date": h.date.strftime("%Y-%m-%d"),
         "total_streams": h.total_streams,
         "daily_streams": h.daily_streams
-    } for h in history]
-
-@app.get("/api/playlist_history/{playlist_id}")
-async def get_playlist_history(
-    playlist_id: int,
-    days: int = 30,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get historical data for a specific playlist for graphing"""
-    latest_date = db.query(func.max(StreamHistory.date)).scalar()
-    if not latest_date:
-        return []
-    
-    start_date = latest_date - timedelta(days=days)
-    
-    # Get all tracks in this playlist
-    tracks = db.query(Track).filter(Track.playlist_id == playlist_id).all()
-    track_ids = [t.id for t in tracks]
-    
-    if not track_ids:
-        return []
-    
-    # Get history for all tracks
-    history = db.query(
-        StreamHistory.date,
-        func.sum(StreamHistory.total_streams).label('total'),
-        func.sum(StreamHistory.daily_streams).label('daily')
-    ).filter(
-        StreamHistory.track_id.in_(track_ids),
-        StreamHistory.date >= start_date
-    ).group_by(
-        StreamHistory.date
-    ).order_by(
-        StreamHistory.date.asc()
-    ).all()
-    
-    return [{
-        "date": h.date.strftime("%Y-%m-%d"),
-        "total_streams": h.total or 0,
-        "daily_streams": h.daily or 0
     } for h in history]
 
 @app.get("/api/stats")
