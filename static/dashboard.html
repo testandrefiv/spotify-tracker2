@@ -354,6 +354,38 @@
             <div class="p-6 max-h-[60vh] overflow-y-auto font-mono text-xs" id="logsContainer"></div>
         </div>
     </div>
+    
+    <div id="usersModal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl border border-gray-700 w-full max-w-md m-4">
+             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Manage Users</h3>
+                <button onclick="closeModal('usersModal')" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <div class="p-6" id="usersModalContent">
+                <p class="text-gray-400">User management interface...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl border border-gray-700 w-full max-w-md m-4">
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">Change Password</h3>
+                <button onclick="closeModal('passwordModal')" class="text-gray-400 hover:text-white">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                 <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Old Password</label>
+                    <input type="password" id="oldPassword" class="w-full bg-gray-700 border border-gray-600 text-white rounded p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+                    <input type="password" id="newPasswordField" class="w-full bg-gray-700 border border-gray-600 text-white rounded p-2">
+                </div>
+                <button onclick="changePassword()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded p-2">Update</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // --- State & Config ---
@@ -1001,6 +1033,28 @@
 
         // Modal Helpers
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openUsersModal() { document.getElementById('usersModal').classList.add('active'); }
+        function openPasswordModal() { document.getElementById('passwordModal').classList.add('active'); }
+        
+        async function changePassword() {
+            const oldPass = document.getElementById('oldPassword').value;
+            const newPass = document.getElementById('newPasswordField').value;
+            try {
+                const res = await fetch(`${API_URL}/users/me/password`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ old_password: oldPass, new_password: newPass })
+                });
+                if(res.ok) {
+                    showNotification('Password changed', 'success');
+                    closeModal('passwordModal');
+                } else {
+                    showNotification('Error changing password', 'error');
+                }
+            } catch(e) {
+                showNotification('Network error', 'error');
+            }
+        }
         
         // Sorting
         let sortDir = { track: 1, total: -1, daily: -1 };
@@ -1012,7 +1066,7 @@
             // Note: Full sort implementation omitted for brevity, logic usually goes inside renderSummary or pre-sorts data
         }
 
-        // Logs and User Modal logic (kept simple/placeholders as they weren't focus of update)
+        // Logs Modal
         async function openLogsModal() {
             const res = await fetch(`${API_URL}/logs`, { headers: { 'Authorization': `Bearer ${authToken}` } });
             const logs = await res.json();
