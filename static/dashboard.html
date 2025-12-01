@@ -4,92 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Spotify Stream Tracker</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Base Styles */
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
-        
-        /* Custom Scrollbar */
+        body { font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { height: 8px; width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         
-        /* Animations */
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
         
         .animate-slide-in { animation: slideInRight 0.3s ease-out; }
         .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        .animate-slide-up { animation: slideUp 0.4s ease-out; }
         
-        /* Interactive Elements */
-        .playlist-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .playlist-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .status-badge {
+            animation: fadeIn 0.5s ease-out;
+        }
         
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
             inset: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
+            background-color: rgba(0, 0, 0, 0.75);
             animation: fadeIn 0.2s ease-out;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
         }
         
-        .modal.active { display: flex; }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-center;
+        }
         
         .modal-content {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 0.75rem;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            animation: slideUp 0.3s ease-out;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideInRight 0.3s ease-out;
         }
-
-        /* Chart Containers */
-        .chart-wrapper { position: relative; height: 350px; width: 100%; }
-        .sparkline-wrapper { position: relative; height: 60px; width: 100%; margin-top: 10px; }
-
-        /* Status Badges */
-        .status-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; letter-spacing: 0.025em; text-transform: uppercase; }
-        .status-active { background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .status-inactive { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
 
-    <nav class="bg-slate-800/80 border-b border-slate-700 sticky top-0 z-50 backdrop-blur-md">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center border border-green-500/20 shadow-lg shadow-green-900/20">
-                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
-                        </svg>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                            </svg>
+                        </div>
+                        <span class="text-white font-bold text-xl">Stream Tracker</span>
                     </div>
-                    <span class="text-white font-bold text-xl tracking-tight">Stream Tracker <span class="text-green-500 text-xs font-normal align-top">PRO</span></span>
                 </div>
-
-                <div class="flex items-center gap-6">
-                    <div id="userInfo" class="hidden md:flex items-center gap-3 text-sm text-slate-400 bg-slate-700/50 px-3 py-1.5 rounded-full border border-slate-600">
-                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span id="userInfoText" class="font-medium text-slate-200">Loading...</span>
+                <div class="flex items-center gap-4">
+                    <div id="userInfo" class="hidden md:flex items-center gap-2 text-sm text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span id="userInfoText"></span>
                     </div>
-                    <button onclick="logout()" class="text-slate-400 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 group">
-                        <svg class="w-4 h-4 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button onclick="logout()" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                         Logout
@@ -99,372 +85,440 @@
         </div>
     </nav>
 
-    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
+        <!-- System Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-blue-500/30 transition-all group">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Playlists</p>
-                        <p id="statTotalPlaylists" class="text-3xl font-bold text-white mt-1 font-mono">-</p>
+                        <p class="text-gray-400 text-sm">Total Playlists</p>
+                        <p id="statTotalPlaylists" class="text-3xl font-bold text-white mt-1">-</p>
                     </div>
-                    <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                        <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-purple-500/30 transition-all group">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Tracks</p>
-                        <p id="statTotalTracks" class="text-3xl font-bold text-white mt-1 font-mono">-</p>
+                        <p class="text-gray-400 text-sm">Total Tracks</p>
+                        <p id="statTotalTracks" class="text-3xl font-bold text-white mt-1">-</p>
                     </div>
-                    <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                        <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/></svg>
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                        </svg>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-green-500/30 transition-all group">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Data Points</p>
-                        <p id="statTotalRecords" class="text-3xl font-bold text-white mt-1 font-mono">-</p>
+                        <p class="text-gray-400 text-sm">Total Records</p>
+                        <p id="statTotalRecords" class="text-3xl font-bold text-white mt-1">-</p>
                     </div>
-                    <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
-                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-yellow-500/30 transition-all group">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Last Sync</p>
-                        <p id="statLastUpdate" class="text-lg font-bold text-white mt-2">-</p>
+                        <p class="text-gray-400 text-sm">Last Update</p>
+                        <p id="statLastUpdate" class="text-lg font-bold text-white mt-1">-</p>
                     </div>
-                    <div class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center group-hover:bg-yellow-500/20 transition-colors">
-                        <svg class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                    <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Admin Controls -->
         <div id="adminControls" class="hidden mb-8 animate-fade-in">
-            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl border border-slate-700 p-6 shadow-xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <svg class="w-32 h-32 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
-                </div>
-
-                <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2 relative z-10">
-                    <span class="bg-green-500 w-2 h-6 rounded-full inline-block"></span>
-                    Admin Control Center
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                    </svg>
+                    Admin Controls
                 </h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-3">Add New Source</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Add Playlist -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Add Playlist</label>
                         <div class="flex gap-2">
-                            <input type="text" id="playlistUrl" placeholder="Paste Spotify Playlist URL" 
-                                class="flex-1 bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent p-2.5 transition-all outline-none">
-                            <button onclick="addPlaylist()" class="bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg text-sm px-4 py-2 transition-all shadow-lg shadow-green-900/20">
+                            <input type="text" id="playlistUrl" placeholder="Spotify Playlist URL" 
+                                class="flex-1 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5">
+                            <button onclick="addPlaylist()" class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition whitespace-nowrap">
                                 Add
                             </button>
                         </div>
                     </div>
                     
-                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-3">System Actions</label>
+                    <!-- Quick Actions -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Actions</label>
                         <div class="flex gap-2">
-                            <button onclick="forceUpdate()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg text-sm px-4 py-2 transition flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                                Sync Now
+                            <button onclick="forceUpdate()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                Force Update
                             </button>
-                            <button onclick="openLogsModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg text-sm px-4 py-2 transition border border-slate-600">
-                                View Logs
+                            <button onclick="openLogsModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                                Logs
                             </button>
                         </div>
                     </div>
                     
-                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-3">Database Management</label>
+                    <!-- Management -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Management</label>
                         <div class="flex gap-2">
-                            <button onclick="openPlaylistsModal()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-lg shadow-purple-900/20">Playlists</button>
-                            <button onclick="openUsersModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-lg shadow-indigo-900/20">Users</button>
-                            <button onclick="openPasswordModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg text-sm px-4 py-2 transition border border-slate-600">Auth</button>
+                            <button onclick="openPlaylistsModal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                                Playlists
+                            </button>
+                            <button onclick="openUsersModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                                Users
+                            </button>
+                            <button onclick="openPasswordModal()" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                                Password
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden min-h-[600px] flex flex-col">
-            <div class="flex border-b border-slate-700 bg-slate-900/50 overflow-x-auto">
-                <button onclick="switchTab('summary')" id="tab-summary" class="px-6 py-4 text-sm font-semibold text-green-500 border-b-2 border-green-500 focus:outline-none transition-colors hover:bg-slate-800/50 flex items-center gap-2">
-                    <span>📊</span> Summary
+        <!-- Data Views -->
+        <div class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 overflow-hidden">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-700 overflow-x-auto">
+                <button onclick="switchTab('summary')" id="tab-summary" 
+                    class="px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap">
+                    📊 Summary View
                 </button>
-                <button onclick="switchTab('totals')" id="tab-totals" class="px-6 py-4 text-sm font-medium text-slate-400 hover:text-white focus:outline-none transition-colors hover:bg-slate-800/50 flex items-center gap-2">
-                    <span>📈</span> Analytics & Graphs
+                <button onclick="switchTab('totals')" id="tab-totals" 
+                    class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
+                    🧮 Totals & Aggregates
                 </button>
-                <button onclick="switchTab('sheets')" id="tab-sheets" class="px-6 py-4 text-sm font-medium text-slate-400 hover:text-white focus:outline-none transition-colors hover:bg-slate-800/50 flex items-center gap-2">
-                    <span>📑</span> Sheets View
+                <button onclick="switchTab('sheets')" id="tab-sheets" 
+                    class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
+                    📑 Sheets View
                 </button>
-                <button onclick="switchTab('full')" id="tab-full" class="px-6 py-4 text-sm font-medium text-slate-400 hover:text-white focus:outline-none transition-colors hover:bg-slate-800/50 flex items-center gap-2">
-                    <span>📜</span> Full History
+                <button onclick="switchTab('full')" id="tab-full" 
+                    class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
+                    📜 Full History
                 </button>
             </div>
 
-            <div class="p-4 border-b border-slate-700 bg-slate-800 flex flex-col sm:flex-row gap-4 justify-between items-center sticky top-0 z-20">
+            <!-- Toolbar -->
+            <div class="p-4 border-b border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div class="flex gap-3 w-full sm:w-auto">
-                    <div class="relative flex-1 sm:w-64">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        </div>
-                        <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search tracks, artists..." 
-                            class="w-full pl-10 bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2">
-                    </div>
-                    <select id="playlistFilter" onchange="filterByPlaylist()" class="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2 min-w-[150px]">
+                    <input type="text" id="tableSearch" onkeyup="filterTable()" 
+                        placeholder="Search tracks or artists..." 
+                        class="flex-1 sm:w-64 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2">
+                    <select id="playlistFilter" onchange="filterByPlaylist()" 
+                        class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2">
                         <option value="">All Playlists</option>
                     </select>
                 </div>
-                <button onclick="loadData()" class="text-sm text-green-400 hover:text-green-300 flex items-center gap-1.5 transition px-3 py-1.5 rounded-lg hover:bg-green-500/10 border border-transparent hover:border-green-500/20">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    Refresh
+                <button onclick="loadData()" 
+                    class="text-sm text-green-400 hover:text-green-300 flex items-center gap-1 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Refresh Data
                 </button>
             </div>
 
-            <div class="relative flex-grow bg-slate-900/30">
-                <div id="loadingSpinner" class="absolute inset-0 bg-slate-900/80 z-30 flex items-center justify-center hidden backdrop-blur-sm">
-                    <div class="text-center">
-                        <svg class="inline w-12 h-12 text-slate-600 animate-spin fill-green-500" viewBox="0 0 100 101" fill="none">
-                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6601 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                        </svg>
-                        <p class="mt-2 text-sm text-slate-400">Syncing data...</p>
-                    </div>
-                </div>
+            <!-- Content -->
+            <div class="overflow-x-auto">
+                <!-- Summary Table -->
+                <table id="summaryTable" class="w-full text-sm text-left text-gray-400">
+                    <thead class="text-xs text-gray-300 uppercase bg-gray-750 border-b border-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 cursor-pointer hover:bg-gray-700" onclick="sortTable('track')">
+                                Track <span id="sort-track"></span>
+                            </th>
+                            <th class="px-6 py-3">Artist</th>
+                            <th class="px-6 py-3">Playlist</th>
+                            <th class="px-6 py-3 text-right cursor-pointer hover:bg-gray-700" onclick="sortTable('total')">
+                                Total Streams <span id="sort-total"></span>
+                            </th>
+                            <th class="px-6 py-3 text-right cursor-pointer hover:bg-gray-700" onclick="sortTable('daily')">
+                                Daily <span id="sort-daily"></span>
+                            </th>
+                            <th class="px-6 py-3 text-right">Weekly</th>
+                            <th class="px-6 py-3 text-right">Monthly</th>
+                            <th class="px-6 py-3 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryBody" class="divide-y divide-gray-700">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
 
-                <div id="summaryView" class="w-full">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-slate-400">
-                            <thead class="text-xs text-slate-300 uppercase bg-slate-800 border-b border-slate-700 sticky top-0 z-10">
-                                <tr>
-                                    <th class="px-6 py-4 cursor-pointer hover:bg-slate-700 hover:text-white transition" onclick="sortTable('track')">Track <span id="sort-track"></span></th>
-                                    <th class="px-6 py-4">Artist</th>
-                                    <th class="px-6 py-4">Playlist</th>
-                                    <th class="px-6 py-4 text-right cursor-pointer hover:bg-slate-700 hover:text-white transition" onclick="sortTable('total')">Total Streams <span id="sort-total"></span></th>
-                                    <th class="px-6 py-4 text-right cursor-pointer hover:bg-slate-700 hover:text-white transition" onclick="sortTable('daily')">Daily <span id="sort-daily"></span></th>
-                                    <th class="px-6 py-4 text-right">Weekly</th>
-                                    <th class="px-6 py-4 text-right">Monthly</th>
-                                    <th class="px-6 py-4 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="summaryBody" class="divide-y divide-slate-700/50"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="totalsView" class="p-6 hidden space-y-8 animate-fade-in">
-                    
-                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl relative overflow-hidden">
-                        <div class="flex justify-between items-end mb-6">
-                            <div>
-                                <h3 class="text-2xl font-bold text-white flex items-center gap-2">
-                                    <span class="w-1 h-8 bg-green-500 rounded-full inline-block"></span>
-                                    Total Daily Progress
-                                </h3>
-                                <p class="text-slate-400 text-sm mt-1 ml-3">Aggregated performance across all active playlists (Last 30 Days)</p>
+                <!-- Totals View -->
+                <div id="totalsView" class="p-6 hidden">
+                    <!-- Overall Total Card -->
+                    <div class="mb-6 bg-gradient-to-r from-green-900/30 to-blue-900/30 border-2 border-green-500/50 rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                            </svg>
+                            Overall Total (All Playlists Combined)
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <p class="text-gray-400 text-sm mb-1">Total Playlists</p>
+                                <p id="overallPlaylists" class="text-2xl font-bold text-white">-</p>
                             </div>
-                        </div>
-                        <div class="chart-wrapper">
-                            <canvas id="mainProgressChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-slate-700 rounded-xl p-6 shadow-lg">
-                        <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">All-Time Performance</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-                            <div class="text-center p-3 bg-slate-800/50 rounded-lg">
-                                <p class="text-xs text-slate-400 uppercase font-semibold">Playlists</p>
-                                <p id="overallPlaylists" class="text-xl font-bold text-white mt-1">-</p>
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <p class="text-gray-400 text-sm mb-1">Total Tracks</p>
+                                <p id="overallTracks" class="text-2xl font-bold text-white">-</p>
                             </div>
-                            <div class="text-center p-3 bg-slate-800/50 rounded-lg">
-                                <p class="text-xs text-slate-400 uppercase font-semibold">Tracks</p>
-                                <p id="overallTracks" class="text-xl font-bold text-white mt-1">-</p>
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <p class="text-gray-400 text-sm mb-1">Total Streams</p>
+                                <p id="overallTotal" class="text-2xl font-bold text-green-400">-</p>
                             </div>
-                            <div class="text-center p-3 bg-slate-800/50 rounded-lg border-t-2 border-green-500">
-                                <p class="text-xs text-slate-400 uppercase font-semibold">Total Streams</p>
-                                <p id="overallTotal" class="text-xl font-bold text-green-400 mt-1">-</p>
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <p class="text-gray-400 text-sm mb-1">Daily Change</p>
+                                <p id="overallDaily" class="text-2xl font-bold text-blue-400">-</p>
                             </div>
-                            <div class="text-center p-3 bg-slate-800/50 rounded-lg border-t-2 border-blue-500">
-                                <p class="text-xs text-slate-400 uppercase font-semibold">Daily Change</p>
-                                <p id="overallDaily" class="text-xl font-bold text-blue-400 mt-1">-</p>
+                            <div class="bg-gray-800/50 p-4 rounded-lg">
+                                <p class="text-gray-400 text-sm mb-1">Weekly</p>
+                                <p id="overallWeekly" class="text-xl font-bold text-purple-400">-</p>
                             </div>
-                            <div class="text-center p-3 bg-slate-800/50 rounded-lg border-t-2 border-purple-500">
-                                <p class="text-xs text-slate-400 uppercase font-semibold">Weekly</p>
-                                <p id="overallWeekly" class="text-xl font-bold text-purple-400 mt-1">-</p>
-                            </div>
-                            <div class="text-center p-3 bg-slate-800/50 rounded-lg border-t-2 border-yellow-500">
-                                <p class="text-xs text-slate-400 uppercase font-semibold">Monthly</p>
-                                <p id="overallMonthly" class="text-xl font-bold text-yellow-400 mt-1">-</p>
+                            <div class="bg-gray-800/50 p-4 rounded-lg col-span-2 md:col-span-1">
+                                <p class="text-gray-400 text-sm mb-1">Monthly</p>
+                                <p id="overallMonthly" class="text-xl font-bold text-yellow-400">-</p>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <h3 class="text-xl font-bold text-white mb-6 pl-2 border-l-4 border-indigo-500">Playlist Performance Breakdown</h3>
-                        <div id="playlistTotalsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            </div>
+                    <!-- Playlist-wise Totals -->
+                    <h3 class="text-lg font-bold text-white mb-4">Playlist-wise Breakdown</h3>
+                    <div id="playlistTotalsContainer" class="space-y-4">
+                        <!-- Playlist cards injected here -->
                     </div>
                 </div>
 
-                <div id="sheetsView" class="hidden animate-fade-in w-full">
-                    <div class="p-6 space-y-8" id="sheetsContainer"></div>
+                <!-- Sheets View -->
+                <div id="sheetsView" class="hidden">
+                    <div class="p-4 bg-gray-750 border-b border-gray-700">
+                        <p class="text-sm text-gray-400">📑 Each playlist displayed as a separate sheet with all tracks and totals</p>
+                    </div>
+                    <div id="sheetsContainer" class="p-6 space-y-8">
+                        <!-- Sheets injected here -->
+                    </div>
                 </div>
 
-                <div id="fullView" class="hidden w-full">
-                    <div class="overflow-x-auto">
-                        <table id="fullTable" class="w-full text-sm text-left text-slate-400">
-                            <thead class="text-xs text-slate-300 uppercase bg-slate-800 border-b border-slate-700 sticky top-0">
-                                <tr>
-                                    <th class="px-6 py-3">Date</th>
-                                    <th class="px-6 py-3">Track</th>
-                                    <th class="px-6 py-3">Artist</th>
-                                    <th class="px-6 py-3">Playlist</th>
-                                    <th class="px-6 py-3 text-right">Total</th>
-                                    <th class="px-6 py-3 text-right">Daily</th>
-                                    <th class="px-6 py-3 text-right">Weekly</th>
-                                    <th class="px-6 py-3 text-right">Monthly</th>
-                                    <th class="px-6 py-3 text-center">Flags</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fullBody" class="divide-y divide-slate-700/50"></tbody>
-                        </table>
-                    </div>
+                <!-- Full Data Table -->
+                <table id="fullTable" class="w-full text-sm text-left text-gray-400 hidden">
+                    <thead class="text-xs text-gray-300 uppercase bg-gray-750 border-b border-gray-700">
+                        <tr>
+                            <th class="px-6 py-3">Date</th>
+                            <th class="px-6 py-3">Track</th>
+                            <th class="px-6 py-3">Artist</th>
+                            <th class="px-6 py-3">Playlist</th>
+                            <th class="px-6 py-3 text-right">Total</th>
+                            <th class="px-6 py-3 text-right">Daily</th>
+                            <th class="px-6 py-3 text-right">Weekly</th>
+                            <th class="px-6 py-3 text-right">Monthly</th>
+                            <th class="px-6 py-3 text-center">Flags</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fullBody" class="divide-y divide-gray-700">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+                
+                <div id="loadingSpinner" class="hidden p-10 text-center">
+                    <svg class="inline w-8 h-8 text-gray-200 animate-spin fill-green-600" viewBox="0 0 100 101" fill="none">
+                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6601 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                    </svg>
+                    <p class="mt-2 text-gray-400">Loading data...</p>
+                </div>
+                
+                <div id="noDataMessage" class="hidden p-10 text-center text-gray-400">
+                    <svg class="inline w-16 h-16 mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                    <p class="text-lg font-semibold">No data available yet</p>
+                    <p class="text-sm mt-2">Add playlists and run an update to start tracking streams</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="playlistsModal" class="modal">
-        <div class="modal-content w-full max-w-5xl h-[85vh]">
-            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800 rounded-t-xl">
-                <div>
-                    <h3 class="text-xl font-bold text-white">Manage Playlists</h3>
-                    <p class="text-sm text-slate-400">View, rename, or deactivate sources</p>
-                </div>
-                <button onclick="closeModal('playlistsModal')" class="text-slate-400 hover:text-white transition p-2 hover:bg-slate-700 rounded-full">✕</button>
-            </div>
-            <div class="p-0 overflow-y-auto flex-1">
-                <table class="w-full text-sm text-left text-slate-400">
-                    <thead class="text-xs text-slate-300 uppercase bg-slate-900 sticky top-0 z-10">
-                        <tr>
-                            <th class="px-6 py-4">Playlist Name (Display Name)</th>
-                            <th class="px-6 py-4">Spotify ID</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4">Last Sync</th>
-                            <th class="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="playlistsListBody" class="divide-y divide-slate-700/50 bg-slate-800"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
+    <!-- MODALS -->
+    
+    <!-- Logs Modal -->
     <div id="logsModal" class="modal">
-        <div class="modal-content w-full max-w-4xl h-[70vh]">
-            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800 rounded-t-xl">
-                <h3 class="text-xl font-bold text-white">System Logs</h3>
-                <button onclick="closeModal('logsModal')" class="text-slate-400 hover:text-white transition">✕</button>
+        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-white">Update Logs</h3>
+                <button onclick="closeModal('logsModal')" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
-            <div class="p-4 overflow-y-auto bg-black font-mono text-xs text-green-400 leading-relaxed" id="logsContainer"></div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <div id="logsContent" class="space-y-2 font-mono text-xs">
+                    <!-- Logs injected here -->
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Playlists Management Modal -->
+    <div id="playlistsModal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-white">Manage Playlists</h3>
+                <button onclick="closeModal('playlistsModal')" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <div id="playlistsList" class="space-y-3">
+                    <!-- Playlists injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Management Modal -->
     <div id="usersModal" class="modal">
-        <div class="modal-content w-full max-w-2xl">
-            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800 rounded-t-xl">
-                <h3 class="text-xl font-bold text-white">User Management</h3>
-                <button onclick="closeModal('usersModal')" class="text-slate-400 hover:text-white transition">✕</button>
+        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-white">Manage Users</h3>
+                <button onclick="closeModal('usersModal')" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <!-- Add User Form -->
+                <div class="mb-6 p-4 bg-gray-700 rounded-lg">
+                    <h4 class="text-sm font-semibold text-white mb-3">Add New User</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input type="text" id="newUsername" placeholder="Username" 
+                            class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
+                        <input type="password" id="newPassword" placeholder="Password" 
+                            class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
+                        <select id="newRole" class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
+                            <option value="regular">Regular</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button onclick="createUser()" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                        Add User
+                    </button>
+                </div>
+                
+                <!-- Users List -->
+                <div id="usersList" class="space-y-3">
+                    <!-- Users injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-md w-full mx-4">
+            <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-white">Change Password</h3>
+                <button onclick="closeModal('passwordModal')" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
             <div class="p-6">
-                <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 mb-6">
-                    <h4 class="text-sm font-bold text-white mb-3 uppercase">Create New User</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <input type="text" id="newUsername" placeholder="Username" class="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white text-sm">
-                        <input type="password" id="newUserPass" placeholder="Password" class="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white text-sm">
-                        <button onclick="createUser()" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded px-3 py-2 text-sm font-bold">Create User</button>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
+                        <input type="password" id="oldPassword" 
+                            class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+                        <input type="password" id="newPasswordField" 
+                            class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" 
+                            class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
+                    </div>
+                    <button onclick="changePassword()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2.5 transition">
+                        Change Password
+                    </button>
                 </div>
-                <h4 class="text-sm font-bold text-slate-400 mb-2 uppercase">Existing Users</h4>
-                <div id="usersList" class="space-y-2"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="passwordModal" class="modal">
-        <div class="modal-content w-full max-w-md">
-            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800 rounded-t-xl">
-                <h3 class="text-xl font-bold text-white">Change Password</h3>
-                <button onclick="closeModal('passwordModal')" class="text-slate-400 hover:text-white transition">✕</button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Old Password</label>
-                    <input type="password" id="oldPassword" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg p-2.5 focus:border-green-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">New Password</label>
-                    <input type="password" id="newPasswordField" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg p-2.5 focus:border-green-500 outline-none">
-                </div>
-                <button onclick="changePassword()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg p-2.5 transition shadow-lg shadow-yellow-900/20">Update Password</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ============================================================================
-        // CONFIG & STATE
-        // ============================================================================
-        const API_URL = '/api';
-        let authToken = localStorage.getItem('token');
+        const API_BASE = window.location.origin;
+        let currentTab = 'summary';
+        let cachedSummary = [];
+        let cachedFull = [];
+        let cachedSheets = [];
+        let summaryData = null;
+        let allPlaylists = [];
+        let currentSort = { column: null, direction: 'asc' };
         let currentUser = null;
-        let mainChartInstance = null;
-        let sparklineInstances = [];
 
-        const state = {
-            playlists: [],
-            tracks: [],
-            history: [],
-            lastUpdate: null
-        };
+        // Auth Check
+        const token = localStorage.getItem('access_token');
+        if (!token) window.location.href = '/';
 
-        // ============================================================================
-        // INITIALIZATION
-        // ============================================================================
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!authToken) {
-                window.location.href = '/';
-                return;
-            }
-            await checkAuth();
-            loadData();
+        const getHeaders = () => ({
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
         });
 
-        async function checkAuth() {
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkUserRole();
+            await loadStats();
+            await loadPlaylists();
+            await loadData();
+        });
+
+        async function checkUserRole() {
             try {
-                const res = await fetch(`${API_URL}/users/me`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
+                const res = await fetch(`${API_BASE}/users/me`, { headers: getHeaders() });
                 if (!res.ok) throw new Error();
                 currentUser = await res.json();
                 
-                const userEl = document.getElementById('userInfoText');
-                userEl.textContent = currentUser.username;
+                document.getElementById('userInfoText').textContent = `${currentUser.username} (${currentUser.role})`;
                 
-                // Show admin controls
                 if (currentUser.role === 'admin') {
                     document.getElementById('adminControls').classList.remove('hidden');
                 }
@@ -474,777 +528,703 @@
         }
 
         function logout() {
-            localStorage.removeItem('token');
+            localStorage.removeItem('access_token');
             window.location.href = '/';
         }
 
-        // ============================================================================
-        // DATA FETCHING
-        // ============================================================================
+        // Stats
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/api/stats`, { headers: getHeaders() });
+                const stats = await res.json();
+                
+                document.getElementById('statTotalPlaylists').textContent = stats.total_playlists;
+                document.getElementById('statTotalTracks').textContent = stats.total_tracks.toLocaleString();
+                document.getElementById('statTotalRecords').textContent = stats.total_records.toLocaleString();
+                document.getElementById('statLastUpdate').textContent = stats.last_update 
+                    ? new Date(stats.last_update).toLocaleDateString() 
+                    : 'Never';
+            } catch (e) {
+                console.error('Error loading stats', e);
+            }
+        }
+
+        // Data Loading
         async function loadData() {
             const spinner = document.getElementById('loadingSpinner');
-            spinner.classList.remove('hidden');
+            const noData = document.getElementById('noDataMessage');
+            const tbodySum = document.getElementById('summaryBody');
+            const tbodyFull = document.getElementById('fullBody');
             
+            spinner.classList.remove('hidden');
+            noData.classList.add('hidden');
+            tbodySum.innerHTML = '';
+            tbodyFull.innerHTML = '';
+
             try {
-                const headers = { 'Authorization': `Bearer ${authToken}` };
+                const playlistId = document.getElementById('playlistFilter').value;
+                const params = playlistId ? `?playlist_id=${playlistId}` : '';
                 
-                const [playlistsRes, tracksRes, historyRes, statsRes] = await Promise.all([
-                    fetch(`${API_URL}/playlists`, { headers }),
-                    fetch(`${API_URL}/tracks`, { headers }),
-                    fetch(`${API_URL}/history?limit=3000`, { headers }), // Increased limit for graphs
-                    fetch(`${API_URL}/logs?limit=1`, { headers })
+                const [resSummary, resFull, resSheets] = await Promise.all([
+                    fetch(`${API_BASE}/api/summary${params}`, { headers: getHeaders() }),
+                    fetch(`${API_BASE}/api/full_data${params}`, { headers: getHeaders() }),
+                    fetch(`${API_BASE}/api/sheets_view`, { headers: getHeaders() })
                 ]);
-
-                if (!playlistsRes.ok) throw new Error("Failed to fetch playlists");
-
-                state.playlists = await playlistsRes.json();
-                state.tracks = await tracksRes.json();
-                state.history = await historyRes.json();
                 
-                const logs = await statsRes.json();
-                if (logs.length > 0) state.lastUpdate = new Date(logs[0].timestamp);
-
-                updateSystemStats();
-                populateFilters();
-                renderAllViews();
-                showNotification('Data synchronized successfully', 'success');
-
+                summaryData = await resSummary.json();
+                cachedSummary = summaryData.tracks || [];
+                cachedFull = await resFull.json();
+                cachedSheets = await resSheets.json();
+                
+                if (cachedSummary.length === 0 && cachedFull.length === 0) {
+                    noData.classList.remove('hidden');
+                } else {
+                    renderSummary(cachedSummary);
+                    renderFull(cachedFull);
+                    renderTotals(summaryData);
+                    renderSheets(cachedSheets);
+                }
+                
+                await loadStats();
             } catch (e) {
-                console.error(e);
-                showNotification('Connection Error: Could not load data', 'error');
+                console.error('Error loading data', e);
+                showNotification('Error loading data', 'error');
             } finally {
                 spinner.classList.add('hidden');
             }
         }
 
-        // ============================================================================
-        // RENDERING LOGIC
-        // ============================================================================
-        function renderAllViews() {
-            renderSummaryTable();
-            renderTotalsAndGraphs();
-            renderSheetsView();
-            renderFullHistoryTable();
-        }
-
-        // --- 1. Summary View ---
-        function renderSummaryTable() {
+        // Rendering
+        function renderSummary(data) {
             const tbody = document.getElementById('summaryBody');
-            tbody.innerHTML = '';
+            tbody.innerHTML = data.map(row => `
+                <tr class="bg-gray-800 hover:bg-gray-750 transition">
+                    <td class="px-6 py-4 font-medium text-white">${escapeHtml(row.track)}</td>
+                    <td class="px-6 py-4 text-gray-300">${escapeHtml(row.artist)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">${escapeHtml(row.playlist)}</td>
+                    <td class="px-6 py-4 text-right font-mono text-white">${row.total.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.daily)}">${formatChange(row.daily)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.weekly)}">${formatChange(row.weekly)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.monthly)}">${formatChange(row.monthly)}</td>
+                    <td class="px-6 py-4 text-center">${getStatusBadge(row.status)}</td>
+                </tr>
+            `).join('');
+        }
 
-            // Get latest history per track
-            const latestHistory = {};
-            state.history.forEach(h => {
-                if (!latestHistory[h.track_id] || new Date(h.date) > new Date(latestHistory[h.track_id].date)) {
-                    latestHistory[h.track_id] = h;
-                }
-            });
-
-            state.tracks.forEach(track => {
-                const h = latestHistory[track.id];
-                if (!h) return;
-
-                const playlist = state.playlists.find(p => p.id === track.playlist_id);
-                // Feature: Use custom name if exists
-                const playlistName = playlist ? (playlist.custom_name || playlist.name) : 'Unknown';
-                
-                // Filters
-                const searchVal = document.getElementById('tableSearch').value.toLowerCase();
-                const filterId = document.getElementById('playlistFilter').value;
-
-                if (filterId && playlist.id.toString() !== filterId) return;
-                if (searchVal && !track.name.toLowerCase().includes(searchVal) && !track.artist.toLowerCase().includes(searchVal)) return;
-
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-700/50 transition border-b border-slate-700/50';
-                
-                // Status Logic
-                let statusBadge = '<span class="status-badge bg-slate-700 text-slate-300">Stable</span>';
-                if (h.is_new) statusBadge = '<span class="status-badge bg-green-900/30 text-green-400 border border-green-500/30">NEW</span>';
-                if (h.daily_streams < 0 || h.is_reset) statusBadge = '<span class="status-badge bg-red-900/30 text-red-400 border border-red-500/30">Reset</span>';
-
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-white">
-                        ${track.name}
-                    </td>
-                    <td class="px-6 py-4 text-slate-300">${track.artist}</td>
-                    <td class="px-6 py-4">
-                        <span class="text-xs bg-slate-800 text-blue-300 border border-blue-500/20 px-2 py-1 rounded-md">
-                            ${playlistName}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right font-mono text-green-400 font-bold tracking-tight text-sm">
-                        ${h.total_streams.toLocaleString()}
-                    </td>
-                    <td class="px-6 py-4 text-right font-mono text-sm ${h.daily_streams > 0 ? 'text-blue-400' : 'text-slate-500'}">
-                        ${h.daily_streams > 0 ? '+' : ''}${h.daily_streams.toLocaleString()}
-                    </td>
-                    <td class="px-6 py-4 text-right font-mono text-sm text-purple-400">
-                        ${h.weekly_streams.toLocaleString()}
-                    </td>
-                    <td class="px-6 py-4 text-right font-mono text-sm text-yellow-400">
-                        ${h.monthly_streams.toLocaleString()}
-                    </td>
+        function renderFull(data) {
+            const tbody = document.getElementById('fullBody');
+            tbody.innerHTML = data.map(row => `
+                <tr class="bg-gray-800 hover:bg-gray-750 transition ${row.is_imputed ? 'bg-yellow-900/10' : ''}">
+                    <td class="px-6 py-4 text-gray-300">${row.date}</td>
+                    <td class="px-6 py-4 font-medium text-white">${escapeHtml(row.track)}</td>
+                    <td class="px-6 py-4 text-gray-300">${escapeHtml(row.artist)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">${escapeHtml(row.playlist)}</td>
+                    <td class="px-6 py-4 text-right font-mono text-white">${row.streams.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.change)}">${formatChange(row.change)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.weekly)}">${formatChange(row.weekly)}</td>
+                    <td class="px-6 py-4 text-right font-mono ${getColor(row.monthly)}">${formatChange(row.monthly)}</td>
                     <td class="px-6 py-4 text-center">
-                        ${statusBadge}
+                        <div class="flex gap-1 justify-center flex-wrap">
+                            ${row.is_new ? '<span class="px-2 py-1 text-xs font-semibold text-blue-200 bg-blue-900/50 rounded">New</span>' : ''}
+                            ${row.is_imputed ? '<span class="px-2 py-1 text-xs font-semibold text-yellow-200 bg-yellow-900/50 rounded">Imputed</span>' : ''}
+                            ${row.is_reset ? '<span class="px-2 py-1 text-xs font-semibold text-red-200 bg-red-900/50 rounded">Reset</span>' : ''}
+                            ${row.is_hidden ? '<span class="px-2 py-1 text-xs font-semibold text-gray-200 bg-gray-700 rounded">Hidden</span>' : ''}
+                            ${!row.is_new && !row.is_imputed && !row.is_reset && !row.is_hidden ? '<span class="text-gray-600">-</span>' : ''}
+                        </div>
                     </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                </tr>
+            `).join('');
         }
 
-        // --- 2. Totals & Graphs View ---
-        function renderTotalsAndGraphs() {
-            // Aggregation Containers
-            const dailyTotals = {}; // Date -> Count
-            const playlistStats = {}; // PlaylistID -> { total, daily, history: {} }
-
-            // Initialize playlist buckets
-            state.playlists.forEach(p => {
-                playlistStats[p.id] = {
-                    name: p.custom_name || p.name,
-                    total: 0,
-                    daily: 0,
-                    history: {}
-                };
-            });
-
-            // Process History
-            state.history.forEach(h => {
-                const dateKey = h.date.split('T')[0];
-                
-                // Main Chart Aggregation
-                dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + h.daily_streams;
-
-                // Playlist Sparkline Aggregation
-                const track = state.tracks.find(t => t.id === h.track_id);
-                if (track && playlistStats[track.playlist_id]) {
-                    const pStat = playlistStats[track.playlist_id];
-                    pStat.history[dateKey] = (pStat.history[dateKey] || 0) + h.daily_streams;
-                }
-            });
-
-            // Calculate Snapshots (Latest Data)
-            let grandTotal = 0, grandDaily = 0, grandWeekly = 0, grandMonthly = 0;
-            const latestEntries = {};
+        function renderTotals(data) {
+            if (!data || !data.overall_total) return;
             
-            // Get most recent entry for each track
-            state.history.forEach(h => {
-                if (!latestEntries[h.track_id] || new Date(h.date) > new Date(latestEntries[h.track_id].date)) {
-                    latestEntries[h.track_id] = h;
-                }
-            });
-
-            Object.values(latestEntries).forEach(h => {
-                grandTotal += h.total_streams;
-                grandDaily += h.daily_streams;
-                grandWeekly += h.weekly_streams;
-                grandMonthly += h.monthly_streams;
-
-                const track = state.tracks.find(t => t.id === h.track_id);
-                if (track && playlistStats[track.playlist_id]) {
-                    playlistStats[track.playlist_id].total += h.total_streams;
-                    playlistStats[track.playlist_id].daily += h.daily_streams;
-                }
-            });
-
-            // Update DOM Numbers
-            document.getElementById('overallPlaylists').innerText = state.playlists.length;
-            document.getElementById('overallTracks').innerText = state.tracks.length;
-            document.getElementById('overallTotal').innerText = grandTotal.toLocaleString();
-            document.getElementById('overallDaily').innerText = (grandDaily > 0 ? '+' : '') + grandDaily.toLocaleString();
-            document.getElementById('overallWeekly').innerText = grandWeekly.toLocaleString();
-            document.getElementById('overallMonthly').innerText = grandMonthly.toLocaleString();
-
-            // Render Main Graph
-            renderMainGraph(dailyTotals);
-
-            // Render Playlist Cards & Sparklines
+            const overall = data.overall_total;
+            
+            // Overall totals
+            document.getElementById('overallPlaylists').textContent = overall.total_playlists || 0;
+            document.getElementById('overallTracks').textContent = (overall.total_tracks || 0).toLocaleString();
+            document.getElementById('overallTotal').textContent = (overall.total_streams || 0).toLocaleString();
+            document.getElementById('overallDaily').textContent = formatChange(overall.daily_streams || 0);
+            document.getElementById('overallWeekly').textContent = formatChange(overall.weekly_streams || 0);
+            document.getElementById('overallMonthly').textContent = formatChange(overall.monthly_streams || 0);
+            
+            // Playlist-wise cards
             const container = document.getElementById('playlistTotalsContainer');
-            container.innerHTML = '';
+            const playlistTotals = data.playlist_totals || [];
             
-            // Cleanup old sparklines
-            sparklineInstances.forEach(c => c.destroy());
-            sparklineInstances = [];
-
-            state.playlists.forEach(p => {
-                if (!p.is_active) return; // Optional: hide inactive
-
-                const stats = playlistStats[p.id];
-                const card = document.createElement('div');
-                card.className = 'playlist-card bg-slate-800 rounded-xl p-5 border border-slate-700 relative overflow-hidden';
-                const canvasId = `sparkline-${p.id}`;
-
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2 relative z-10">
-                        <div class="overflow-hidden mr-4">
-                            <h4 class="font-bold text-white text-lg truncate" title="${stats.name}">${stats.name}</h4>
-                            <span class="text-xs text-slate-500 font-mono">ID: ${p.spotify_id}</span>
+            container.innerHTML = playlistTotals.map(p => `
+                <div class="bg-gray-750 border border-gray-700 rounded-xl p-6 hover:border-green-500/50 transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-white">${escapeHtml(p.playlist_name)}</h4>
+                            <p class="text-sm text-gray-400">${p.track_count} tracks</p>
                         </div>
-                        <div class="text-right flex-shrink-0">
-                            <div class="text-2xl font-bold text-green-400 tracking-tight">${stats.total.toLocaleString()}</div>
-                            <div class="text-xs font-bold ${stats.daily > 0 ? 'text-blue-400' : 'text-slate-500'}">
-                                ${stats.daily > 0 ? '▲' : ''} ${stats.daily.toLocaleString()} today
-                            </div>
+                        <div class="px-3 py-1 bg-green-900/30 text-green-400 rounded-lg text-sm font-semibold">
+                            ${(p.total_streams || 0).toLocaleString()}
                         </div>
                     </div>
-                    <div class="sparkline-wrapper">
-                        <canvas id="${canvasId}"></canvas>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <p class="text-xs text-gray-400 mb-1">Daily</p>
+                            <p class="text-lg font-bold ${getColor(p.daily_streams)}">${formatChange(p.daily_streams)}</p>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <p class="text-xs text-gray-400 mb-1">Weekly</p>
+                            <p class="text-lg font-bold ${getColor(p.weekly_streams)}">${formatChange(p.weekly_streams)}</p>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded-lg">
+                            <p class="text-xs text-gray-400 mb-1">Monthly</p>
+                            <p class="text-lg font-bold ${getColor(p.monthly_streams)}">${formatChange(p.monthly_streams)}</p>
+                        </div>
                     </div>
-                `;
-                container.appendChild(card);
-
-                // Initialize Sparkline (delayed to ensure DOM presence)
-                setTimeout(() => initSparkline(canvasId, stats.history), 0);
-            });
+                </div>
+            `).join('');
         }
 
-        // --- Graph Implementations (Chart.js) ---
-        function renderMainGraph(dataMap) {
-            const ctx = document.getElementById('mainProgressChart').getContext('2d');
-            const dates = Object.keys(dataMap).sort().slice(-30); // Last 30 days
-            const values = dates.map(d => dataMap[d]);
-            
-            // Fancy labels
-            const labels = dates.map(d => {
-                const date = new Date(d);
-                return `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`;
-            });
-
-            if (mainChartInstance) mainChartInstance.destroy();
-
-            mainChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Daily Streams',
-                        data: values,
-                        borderColor: '#10b981', // Tailwind green-500
-                        backgroundColor: (context) => {
-                            const ctx = context.chart.ctx;
-                            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.5)');
-                            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
-                            return gradient;
-                        },
-                        borderWidth: 3,
-                        pointBackgroundColor: '#064e3b',
-                        pointBorderColor: '#10b981',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                            titleColor: '#cbd5e1',
-                            bodyColor: '#34d399',
-                            borderColor: '#334155',
-                            borderWidth: 1,
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return 'Streams: ' + context.parsed.y.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#334155', borderDash: [5, 5] },
-                            ticks: { color: '#94a3b8', font: { family: 'Inter' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#94a3b8', font: { family: 'Inter' }, maxRotation: 45, minRotation: 45 }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
-                }
-            });
-        }
-
-        function initSparkline(id, historyMap) {
-            const ctx = document.getElementById(id);
-            if (!ctx) return;
-            
-            const dates = Object.keys(historyMap).sort().slice(-14); // Last 14 days
-            const values = dates.map(d => historyMap[d]);
-
-            const chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        data: values,
-                        borderColor: '#60a5fa', // Blue 400
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        pointHoverRadius: 0,
-                        fill: false,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    scales: {
-                        x: { display: false },
-                        y: { display: false, min: 0 }
-                    },
-                    layout: { padding: 0 }
-                }
-            });
-            sparklineInstances.push(chart);
-        }
-
-        // --- 3. Sheets View ---
-        function renderSheetsView() {
+        function renderSheets(sheets) {
             const container = document.getElementById('sheetsContainer');
-            container.innerHTML = '';
-
-            state.playlists.forEach(p => {
-                const displayName = p.custom_name || p.name;
-                const pTracks = state.tracks.filter(t => t.playlist_id === p.id);
-                if (pTracks.length === 0) return;
-
-                const section = document.createElement('div');
-                section.className = 'bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-lg';
-                
-                let rows = '';
-                let totalS = 0, dailyS = 0;
-
-                pTracks.forEach(t => {
-                    const h = state.history
-                        .filter(hist => hist.track_id === t.id)
-                        .sort((a,b) => new Date(b.date) - new Date(a.date))[0];
-                    
-                    if (h) {
-                        totalS += h.total_streams;
-                        dailyS += h.daily_streams;
-                        rows += `
-                            <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition">
-                                <td class="px-4 py-3 text-slate-200">${t.name}</td>
-                                <td class="px-4 py-3 text-slate-400">${t.artist}</td>
-                                <td class="px-4 py-3 text-right text-green-400 font-mono text-sm">${h.total_streams.toLocaleString()}</td>
-                                <td class="px-4 py-3 text-right text-blue-400 font-mono text-sm">+${h.daily_streams.toLocaleString()}</td>
-                            </tr>
-                        `;
-                    }
-                });
-
-                section.innerHTML = `
-                    <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">P</div>
+            
+            container.innerHTML = sheets.map((sheet, idx) => `
+                <div class="bg-gray-750 border-2 border-gray-700 rounded-xl overflow-hidden">
+                    <!-- Sheet Header -->
+                    <div class="bg-gradient-to-r from-green-900/30 to-blue-900/30 border-b-2 border-green-500/50 p-6">
+                        <div class="flex justify-between items-start">
                             <div>
-                                <h4 class="font-bold text-lg text-white leading-none">${displayName}</h4>
-                                <span class="text-xs text-slate-500">${pTracks.length} tracks tracked</span>
+                                <h3 class="text-xl font-bold text-white mb-2">
+                                    Sheet ${idx + 1}: ${escapeHtml(sheet.playlist_name)}
+                                </h3>
+                                <div class="flex gap-4 text-sm text-gray-400">
+                                    <span>📊 ${sheet.tracks.length} tracks</span>
+                                    <span class="${sheet.is_active ? 'text-green-400' : 'text-gray-500'}">
+                                        ${sheet.is_active ? '● Active' : '○ Inactive'}
+                                    </span>
+                                    <span>🕐 ${sheet.last_updated ? new Date(sheet.last_updated).toLocaleDateString() : 'Never updated'}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs text-slate-400 block uppercase">Total Volume</span>
-                            <span class="text-green-400 font-bold font-mono">${totalS.toLocaleString()}</span>
+                            <a href="${sheet.playlist_url}" target="_blank" 
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                                </svg>
+                                Open in Spotify
+                            </a>
                         </div>
                     </div>
+                    
+                    <!-- Totals Row -->
+                    <div class="bg-gray-800 border-b border-gray-700 p-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Total Streams</p>
+                                    <p class="text-lg font-bold text-white">${sheet.totals.total_streams.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Daily</p>
+                                    <p class="text-lg font-bold ${getColor(sheet.totals.daily_streams)}">${formatChange(sheet.totals.daily_streams)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Weekly</p>
+                                    <p class="text-lg font-bold ${getColor(sheet.totals.weekly_streams)}">${formatChange(sheet.totals.weekly_streams)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400">Monthly</p>
+                                    <p class="text-lg font-bold ${getColor(sheet.totals.monthly_streams)}">${formatChange(sheet.totals.monthly_streams)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tracks Table -->
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-slate-400">
-                            <thead class="text-xs text-slate-500 uppercase bg-slate-800/50">
+                        <table class="w-full text-sm">
+                            <thead class="text-xs text-gray-300 uppercase bg-gray-800 border-b border-gray-700">
                                 <tr>
-                                    <th class="px-4 py-2">Track</th>
-                                    <th class="px-4 py-2">Artist</th>
-                                    <th class="px-4 py-2 text-right">Total</th>
-                                    <th class="px-4 py-2 text-right">Daily</th>
+                                    <th class="px-4 py-3 text-left">#</th>
+                                    <th class="px-4 py-3 text-left">Track</th>
+                                    <th class="px-4 py-3 text-left">Artist</th>
+                                    <th class="px-4 py-3 text-right">Total</th>
+                                    <th class="px-4 py-3 text-right">Daily</th>
+                                    <th class="px-4 py-3 text-right">Weekly</th>
+                                    <th class="px-4 py-3 text-right">Monthly</th>
+                                    <th class="px-4 py-3 text-center">Status</th>
+                                    <th class="px-4 py-3 text-center">Link</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-700/30">${rows}</tbody>
+                            <tbody class="divide-y divide-gray-700">
+                                ${sheet.tracks.map((track, trackIdx) => `
+                                    <tr class="hover:bg-gray-800/50 transition">
+                                        <td class="px-4 py-3 text-gray-500">${trackIdx + 1}</td>
+                                        <td class="px-4 py-3 font-medium text-white">${escapeHtml(track.track)}</td>
+                                        <td class="px-4 py-3 text-gray-300">${escapeHtml(track.artist)}</td>
+                                        <td class="px-4 py-3 text-right font-mono text-white">${track.total.toLocaleString()}</td>
+                                        <td class="px-4 py-3 text-right font-mono ${getColor(track.daily)}">${formatChange(track.daily)}</td>
+                                        <td class="px-4 py-3 text-right font-mono ${getColor(track.weekly)}">${formatChange(track.weekly)}</td>
+                                        <td class="px-4 py-3 text-right font-mono ${getColor(track.monthly)}">${formatChange(track.monthly)}</td>
+                                        <td class="px-4 py-3 text-center">${getStatusBadge(track.status)}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <a href="${track.url}" target="_blank" class="text-green-400 hover:text-green-300 transition">
+                                                <svg class="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                                                    <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
                         </table>
                     </div>
-                `;
-                container.appendChild(section);
-            });
+                </div>
+            `).join('');
         }
 
-        // --- 4. Full History ---
-        function renderFullHistoryTable() {
-            const tbody = document.getElementById('fullBody');
-            tbody.innerHTML = '';
-            
-            // Performance: Limit to 500 latest entries
-            const sorted = [...state.history].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 500);
-            
-            sorted.forEach(h => {
-                const track = state.tracks.find(t => t.id === h.track_id);
-                if(!track) return;
-                const playlist = state.playlists.find(p => p.id === track.playlist_id);
-                const playlistName = playlist ? (playlist.custom_name || playlist.name) : 'Unknown';
-
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-slate-700 hover:bg-slate-700/50 transition';
-                tr.innerHTML = `
-                    <td class="px-6 py-3 whitespace-nowrap text-slate-400 text-xs font-mono">${h.date.split('T')[0]}</td>
-                    <td class="px-6 py-3 font-medium text-white">${track.name}</td>
-                    <td class="px-6 py-3 text-slate-400">${track.artist}</td>
-                    <td class="px-6 py-3"><span class="text-xs bg-slate-800 border border-slate-600 px-2 py-1 rounded text-slate-300">${playlistName}</span></td>
-                    <td class="px-6 py-3 text-right text-green-400 font-mono text-sm">${h.total_streams.toLocaleString()}</td>
-                    <td class="px-6 py-3 text-right text-blue-400 font-mono text-sm">+${h.daily_streams}</td>
-                    <td class="px-6 py-3 text-right text-purple-400 font-mono text-sm">${h.weekly_streams}</td>
-                    <td class="px-6 py-3 text-right text-yellow-400 font-mono text-sm">${h.monthly_streams}</td>
-                    <td class="px-6 py-3 text-center text-xs">
-                        ${h.is_imputed ? '<span class="text-yellow-500" title="Auto-filled">⚠</span>' : ''}
-                        ${h.is_reset ? '<span class="text-red-500" title="Stream Reset">⬇</span>' : ''}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+        // Helpers
+        function formatChange(val) {
+            if (val > 0) return `+${val.toLocaleString()}`;
+            if (val < 0) return `${val.toLocaleString()}`;
+            return '-';
         }
 
-        // ============================================================================
-        // PLAYLIST RENAMING FEATURE
-        // ============================================================================
-        function openPlaylistsModal() {
-            const tbody = document.getElementById('playlistsListBody');
-            tbody.innerHTML = '';
-            
-            state.playlists.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-slate-700 hover:bg-slate-700/30';
-                
-                const displayName = p.custom_name || p.name;
-                const isActive = p.is_active;
-
-                tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3 group">
-                            <div id="display-name-div-${p.id}" class="flex items-center gap-2">
-                                <span class="text-white font-semibold text-sm">${displayName}</span>
-                                ${p.custom_name ? '<span class="text-[10px] bg-indigo-900 text-indigo-300 px-1.5 rounded border border-indigo-700">Custom</span>' : ''}
-                                <button onclick="toggleRename(${p.id})" class="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-green-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                </button>
-                            </div>
-                            
-                            <div id="edit-name-div-${p.id}" class="hidden flex items-center gap-2 w-full max-w-[250px]">
-                                <input id="input-name-${p.id}" type="text" value="${displayName}" 
-                                    class="bg-slate-900 border border-green-500 text-white text-sm rounded px-2 py-1 focus:outline-none flex-1">
-                                <button onclick="savePlaylistName(${p.id})" class="text-green-500 hover:text-green-400 bg-green-900/20 p-1 rounded">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                </button>
-                                <button onclick="toggleRename(${p.id})" class="text-red-500 hover:text-red-400 bg-red-900/20 p-1 rounded">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 font-mono text-xs text-slate-500 select-all">${p.spotify_id}</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2.5 py-1 text-xs rounded-full font-bold border ${isActive ? 'bg-green-900/20 text-green-400 border-green-500/30' : 'bg-red-900/20 text-red-400 border-red-500/30'}">
-                            ${isActive ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-xs text-slate-400">
-                        ${p.last_updated ? new Date(p.last_updated).toLocaleString() : 'Never'}
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button onclick="togglePlaylistStatus(${p.id}, ${!isActive})" 
-                            class="text-xs font-semibold hover:underline ${isActive ? 'text-red-400' : 'text-green-400'}">
-                            ${isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            document.getElementById('playlistsModal').classList.add('active');
+        function getColor(val) {
+            if (val > 0) return 'text-green-400';
+            if (val < 0) return 'text-red-400';
+            return 'text-gray-500';
         }
 
-        function toggleRename(id) {
-            const displayDiv = document.getElementById(`display-name-div-${id}`);
-            const editDiv = document.getElementById(`edit-name-div-${id}`);
+        function getStatusBadge(status) {
+            const badges = {
+                'new': '<span class="px-2 py-1 text-xs font-semibold text-blue-200 bg-blue-900/50 border border-blue-700 rounded status-badge">New</span>',
+                'imputed': '<span class="px-2 py-1 text-xs font-semibold text-yellow-200 bg-yellow-900/50 border border-yellow-700 rounded status-badge">Imputed</span>',
+                'reset': '<span class="px-2 py-1 text-xs font-semibold text-red-200 bg-red-900/50 border border-red-700 rounded status-badge">Reset</span>',
+                'hidden': '<span class="px-2 py-1 text-xs font-semibold text-gray-200 bg-gray-700 border border-gray-600 rounded status-badge">Hidden</span>',
+                'ok': '<span class="px-2 py-1 text-xs font-semibold text-green-200 bg-green-900/30 border border-green-800 rounded status-badge">OK</span>'
+            };
+            return badges[status] || badges['ok'];
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // UI Logic
+        function switchTab(tab) {
+            currentTab = tab;
             
-            if (editDiv.classList.contains('hidden')) {
-                displayDiv.classList.add('hidden');
-                editDiv.classList.remove('hidden');
-                document.getElementById(`input-name-${id}`).focus();
+            // Reset all tabs
+            ['summary', 'totals', 'sheets', 'full'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (btn) {
+                    btn.className = 'px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap';
+                }
+            });
+            
+            // Activate current tab
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeBtn) {
+                activeBtn.className = 'px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap';
+            }
+            
+            // Show/hide content
+            document.getElementById('summaryTable').classList.add('hidden');
+            document.getElementById('totalsView').classList.add('hidden');
+            document.getElementById('sheetsView').classList.add('hidden');
+            document.getElementById('fullTable').classList.add('hidden');
+            
+            if (tab === 'summary') {
+                document.getElementById('summaryTable').classList.remove('hidden');
+            } else if (tab === 'totals') {
+                document.getElementById('totalsView').classList.remove('hidden');
+            } else if (tab === 'sheets') {
+                document.getElementById('sheetsView').classList.remove('hidden');
+            } else if (tab === 'full') {
+                document.getElementById('fullTable').classList.remove('hidden');
+            }
+            
+            filterTable();
+        }
+
+        function filterTable() {
+            const query = document.getElementById('tableSearch').value.toLowerCase();
+            const targetBody = currentTab === 'summary' ? 'summaryBody' : 'fullBody';
+            const rows = document.getElementById(targetBody).getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            }
+        }
+
+        function filterByPlaylist() {
+            loadData();
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
-                displayDiv.classList.remove('hidden');
-                editDiv.classList.add('hidden');
+                currentSort.column = column;
+                currentSort.direction = 'asc';
             }
-        }
 
-        async function savePlaylistName(id) {
-            const input = document.getElementById(`input-name-${id}`);
-            const newName = input.value.trim();
-            const playlist = state.playlists.find(p => p.id === id);
-
-            if (!newName) return showNotification("Name cannot be empty", "error");
-
-            try {
-                // Using existing endpoint logic: PUT with custom_name
-                const res = await fetch(`${API_URL}/playlists/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ 
-                        custom_name: newName,
-                        is_active: playlist.is_active // preserve status
-                    })
-                });
-
-                if (res.ok) {
-                    showNotification('Renamed successfully', 'success');
-                    // Update locally to avoid full reload flicker
-                    playlist.custom_name = newName;
-                    toggleRename(id); // close edit mode
-                    openPlaylistsModal(); // Re-render modal table
-                    loadData(); // Refresh main dashboard data in background
+            const sorted = [...cachedSummary].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+                
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+                
+                if (currentSort.direction === 'asc') {
+                    return valA > valB ? 1 : -1;
                 } else {
-                    const err = await res.json();
-                    showNotification(err.detail || 'Failed to rename', 'error');
+                    return valA < valB ? 1 : -1;
                 }
-            } catch (e) {
-                showNotification('Network error while renaming', 'error');
-            }
+            });
+
+            renderSummary(sorted);
+            
+            // Update sort indicators
+            document.querySelectorAll('[id^="sort-"]').forEach(el => el.textContent = '');
+            const indicator = currentSort.direction === 'asc' ? '↑' : '↓';
+            document.getElementById(`sort-${column}`).textContent = indicator;
         }
 
-        async function togglePlaylistStatus(id, newStatus) {
-            const playlist = state.playlists.find(p => p.id === id);
+        // Playlists
+        async function loadPlaylists() {
             try {
-                const res = await fetch(`${API_URL}/playlists/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ is_active: newStatus, custom_name: playlist.custom_name })
-                });
-                if (res.ok) {
-                    showNotification(`Playlist ${newStatus ? 'Activated' : 'Deactivated'}`, 'success');
-                    loadData(); // Reload to update lists
-                    setTimeout(() => openPlaylistsModal(), 500); // Re-open modal
-                }
+                const res = await fetch(`${API_BASE}/api/playlists`, { headers: getHeaders() });
+                allPlaylists = await res.json();
+                
+                const filter = document.getElementById('playlistFilter');
+                filter.innerHTML = '<option value="">All Playlists</option>' + 
+                    allPlaylists.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
             } catch (e) {
-                showNotification('Error updating status', 'error');
+                console.error('Error loading playlists', e);
             }
         }
 
-        // ============================================================================
-        // ADMIN & UTILS
-        // ============================================================================
-        
         async function addPlaylist() {
-            const url = document.getElementById('playlistUrl').value;
-            if (!url) return showNotification("Please enter a URL", "error");
+            const url = document.getElementById('playlistUrl').value.trim();
+            if (!url) return showNotification('Please enter a URL', 'error');
             
             try {
-                const res = await fetch(`${API_URL}/playlists`, {
+                const res = await fetch(`${API_BASE}/api/playlists`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ url: url })
+                    headers: getHeaders(),
+                    body: JSON.stringify({ url })
                 });
+                
                 if (res.ok) {
+                    const data = await res.json();
+                    showNotification(data.message, 'success');
                     document.getElementById('playlistUrl').value = '';
-                    showNotification('Playlist added successfully', 'success');
-                    loadData();
+                    await loadPlaylists();
+                    await loadStats();
                 } else {
-                    const err = await res.json();
-                    showNotification(err.detail, 'error');
+                    const error = await res.json();
+                    showNotification(error.detail || 'Error adding playlist', 'error');
                 }
             } catch (e) {
-                showNotification('Error adding playlist', 'error');
+                showNotification('Network error', 'error');
             }
         }
 
         async function forceUpdate() {
+            if (!confirm('Start background scraper? This may take several minutes.')) return;
+            
             try {
-                showNotification('Background update started...', 'info');
-                const res = await fetch(`${API_URL}/force-update`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${authToken}` }
+                const res = await fetch(`${API_BASE}/api/force_update`, { 
+                    method: 'POST', 
+                    headers: getHeaders() 
                 });
+                
                 if (res.ok) {
-                    showNotification('Update completed', 'success');
-                    loadData();
-                } else throw new Error();
+                    showNotification('Update triggered! Check logs for progress.', 'success');
+                }
             } catch (e) {
-                showNotification('Update failed or timed out', 'error');
+                showNotification('Error triggering update', 'error');
             }
         }
 
-        // --- User Management ---
-        function openUsersModal() {
-            document.getElementById('usersModal').classList.add('active');
-            loadUsersList();
+        // Modals
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
         }
 
-        async function loadUsersList() {
-            const listDiv = document.getElementById('usersList');
-            listDiv.innerHTML = '<p class="text-slate-500 text-xs">Loading users...</p>';
-            
-            // Assuming endpoint exists based on main.py 'create_user' and 'get_users' implied
-            // If get_users endpoint is missing, this might fail, but I included it based on generic admin patterns.
-            // If main.py doesn't have GET /users, this part is strictly frontend ready.
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        async function openLogsModal() {
+            openModal('logsModal');
             try {
-                // Attempt to fetch users if endpoint exists, otherwise this is a placeholder
-                // Note: The user provided code snippets didn't explicitly show GET /users but implied management.
-                // I will add a fallback if the fetch fails.
-                const res = await fetch(`${API_URL}/users`, { headers: { 'Authorization': `Bearer ${authToken}` } });
-                if (res.ok) {
-                    const users = await res.json();
-                    listDiv.innerHTML = users.map(u => `
-                        <div class="flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700">
-                            <span class="text-white text-sm">${u.username} <span class="text-xs text-slate-500">(${u.role})</span></span>
-                            ${u.username !== currentUser.username ? `<button onclick="deleteUser(${u.id})" class="text-red-400 hover:text-red-300 text-xs">Delete</button>` : ''}
+                const res = await fetch(`${API_BASE}/api/logs?limit=100`, { headers: getHeaders() });
+                const logs = await res.json();
+                
+                document.getElementById('logsContent').innerHTML = logs.map(l => `
+                    <div class="p-3 bg-gray-700 rounded border-l-4 ${
+                        l.status === 'Success' ? 'border-green-500' : 
+                        l.status === 'Failure' ? 'border-red-500' : 'border-blue-500'
+                    }">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-gray-400">${new Date(l.timestamp).toLocaleString()}</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded ${
+                                l.status === 'Success' ? 'bg-green-900 text-green-200' : 
+                                l.status === 'Failure' ? 'bg-red-900 text-red-200' : 'bg-blue-900 text-blue-200'
+                            }">${l.status}</span>
                         </div>
-                    `).join('');
-                } else {
-                    listDiv.innerHTML = '<p class="text-red-400 text-xs">Could not fetch users list (Check API)</p>';
+                        <div class="text-white">${escapeHtml(l.message)}</div>
+                        ${l.playlist_name ? `<div class="text-gray-500 text-xs mt-1">Playlist: ${escapeHtml(l.playlist_name)}</div>` : ''}
+                        ${l.error_details ? `<div class="text-red-400 text-xs mt-1">${escapeHtml(l.error_details)}</div>` : ''}
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('logsContent').innerHTML = '<p class="text-red-400">Error loading logs</p>';
+            }
+        }
+
+        async function openPlaylistsModal() {
+            openModal('playlistsModal');
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, { headers: getHeaders() });
+                const playlists = await res.json();
+                
+                document.getElementById('playlistsList').innerHTML = playlists.map(p => `
+                    <div class="p-4 bg-gray-700 rounded-lg flex justify-between items-center">
+                        <div class="flex-1">
+                            <div class="font-semibold text-white">${escapeHtml(p.name)}</div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                ${p.track_count} tracks | 
+                                ${p.is_active ? '<span class="text-green-400">Active</span>' : '<span class="text-gray-500">Inactive</span>'} |
+                                Last: ${p.last_updated ? new Date(p.last_updated).toLocaleDateString() : 'Never'}
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="togglePlaylistActive(${p.id}, ${p.is_active})" 
+                                class="px-3 py-1 text-sm rounded ${p.is_active ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} text-white transition">
+                                ${p.is_active ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button onclick="deletePlaylist(${p.id})" 
+                                class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('playlistsList').innerHTML = '<p class="text-red-400">Error loading playlists</p>';
+            }
+        }
+
+        async function togglePlaylistActive(id, currentState) {
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ is_active: !currentState })
+                });
+                
+                if (res.ok) {
+                    showNotification('Playlist updated', 'success');
+                    openPlaylistsModal();
+                    await loadPlaylists();
                 }
             } catch (e) {
-                listDiv.innerHTML = '<p class="text-slate-500 text-xs">User management API not reachable.</p>';
+                showNotification('Error updating playlist', 'error');
+            }
+        }
+
+        async function deletePlaylist(id) {
+            if (!confirm('Delete this playlist and all its data?')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                
+                if (res.ok) {
+                    showNotification('Playlist deleted', 'success');
+                    openPlaylistsModal();
+                    await loadPlaylists();
+                    await loadData();
+                }
+            } catch (e) {
+                showNotification('Error deleting playlist', 'error');
+            }
+        }
+
+        async function openUsersModal() {
+            openModal('usersModal');
+            try {
+                const res = await fetch(`${API_BASE}/api/users`, { headers: getHeaders() });
+                const users = await res.json();
+                
+                document.getElementById('usersList').innerHTML = users.map(u => `
+                    <div class="p-4 bg-gray-700 rounded-lg flex justify-between items-center">
+                        <div>
+                            <div class="font-semibold text-white">${escapeHtml(u.username)}</div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                Role: ${u.role} | Joined: ${new Date(u.created_at).toLocaleDateString()}
+                            </div>
+                        </div>
+                        ${u.username !== 'admin' ? `
+                            <button onclick="deleteUser(${u.id})" 
+                                class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition">
+                                Delete
+                            </button>
+                        ` : '<span class="text-xs text-gray-500">Default Admin</span>'}
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('usersList').innerHTML = '<p class="text-red-400">Error loading users</p>';
             }
         }
 
         async function createUser() {
-            const username = document.getElementById('newUsername').value;
-            const password = document.getElementById('newUserPass').value;
-            if(!username || !password) return showNotification('Fields required', 'error');
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+            
+            if (!username || !password) return showNotification('Fill all fields', 'error');
             
             try {
-                const res = await fetch(`${API_URL}/users`, {
+                const res = await fetch(`${API_BASE}/api/users`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ username, password, role: 'regular' })
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username, password, role })
                 });
-                if(res.ok) {
+                
+                if (res.ok) {
                     showNotification('User created', 'success');
                     document.getElementById('newUsername').value = '';
-                    document.getElementById('newUserPass').value = '';
-                    loadUsersList();
+                    document.getElementById('newPassword').value = '';
+                    openUsersModal();
                 } else {
-                    const err = await res.json();
-                    showNotification(err.detail, 'error');
+                    const error = await res.json();
+                    showNotification(error.detail || 'Error creating user', 'error');
                 }
-            } catch (e) { showNotification('Error creating user', 'error'); }
-        }
-
-        async function deleteUser(id) {
-            if(!confirm('Delete user?')) return;
-            try {
-                const res = await fetch(`${API_URL}/users/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                if(res.ok) {
-                    showNotification('User deleted', 'success');
-                    loadUsersList();
-                }
-            } catch (e) { showNotification('Error deleting user', 'error'); }
-        }
-
-        // --- Logs ---
-        async function openLogsModal() {
-            const container = document.getElementById('logsContainer');
-            container.innerHTML = 'Loading...';
-            document.getElementById('logsModal').classList.add('active');
-            
-            try {
-                const res = await fetch(`${API_URL}/logs?limit=50`, { headers: { 'Authorization': `Bearer ${authToken}` } });
-                const logs = await res.json();
-                container.innerHTML = logs.map(l => `
-                    <div class="mb-2 border-b border-gray-800 pb-2">
-                        <span class="text-green-500">[${new Date(l.timestamp).toLocaleString()}]</span>
-                        <span class="text-white font-bold ml-2 ${l.status === 'Failure' ? 'text-red-500' : 'text-blue-400'}">${l.status}</span>
-                        <span class="text-slate-300 ml-2">${l.message}</span>
-                        ${l.playlist_name ? `<span class="text-xs text-slate-500 ml-2">(${l.playlist_name})</span>` : ''}
-                    </div>
-                `).join('');
-            } catch (e) { container.innerHTML = 'Error loading logs.'; }
-        }
-
-        // --- Helpers ---
-        function switchTab(tab) {
-            ['summary', 'totals', 'sheets', 'full'].forEach(t => {
-                document.getElementById(`${t}View`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('text-green-500', 'border-b-2', 'border-green-500', 'bg-slate-800/50');
-                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
-            });
-            document.getElementById(`${tab}View`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
-            document.getElementById(`tab-${tab}`).classList.add('text-green-500', 'border-b-2', 'border-green-500', 'bg-slate-800/50');
-            
-            if (tab === 'totals') renderTotalsAndGraphs(); // Re-render for canvas size fix
-        }
-
-        function updateSystemStats() {
-            document.getElementById('statTotalPlaylists').textContent = state.playlists.length;
-            document.getElementById('statTotalTracks').textContent = state.tracks.length;
-            document.getElementById('statTotalRecords').textContent = state.history.length.toLocaleString();
-            if (state.lastUpdate) {
-                const diff = Math.floor((new Date() - state.lastUpdate) / 1000 / 60);
-                document.getElementById('statLastUpdate').textContent = diff < 60 ? `${diff}m ago` : `${Math.floor(diff/60)}h ago`;
+            } catch (e) {
+                showNotification('Network error', 'error');
             }
         }
 
-        function populateFilters() {
-            const select = document.getElementById('playlistFilter');
-            const current = select.value;
-            select.innerHTML = '<option value="">All Playlists</option>';
-            state.playlists.forEach(p => {
-                const option = document.createElement('option');
-                option.value = p.id;
-                option.textContent = p.custom_name || p.name;
-                select.appendChild(option);
-            });
-            select.value = current;
-        }
-
-        function filterTable() { renderSummaryTable(); }
-        function filterByPlaylist() { renderSummaryTable(); }
-
-        let sortDir = { track: 1, total: -1, daily: -1 };
-        function sortTable(col) {
-            sortDir[col] *= -1;
-            renderSummaryTable(); // In real app, perform actual sort on data first
-        }
-
-        function showNotification(msg, type) {
-            const div = document.createElement('div');
-            const bg = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-600' : 'bg-blue-600');
-            div.className = `fixed top-20 right-4 ${bg} text-white px-6 py-3 rounded shadow-lg z-[2000] animate-slide-in font-medium flex items-center gap-2`;
-            div.innerHTML = `<span>${msg}</span>`;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-        }
-
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function openPasswordModal() { document.getElementById('passwordModal').classList.add('active'); }
-        
-        async function changePassword() {
-            const oldPass = document.getElementById('oldPassword').value;
-            const newPass = document.getElementById('newPasswordField').value;
+        async function deleteUser(id) {
+            if (!confirm('Delete this user?')) return;
+            
             try {
-                const res = await fetch(`${API_URL}/users/me/password`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ old_password: oldPass, new_password: newPass })
+                const res = await fetch(`${API_BASE}/api/users/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
                 });
-                if(res.ok) {
-                    showNotification('Password updated', 'success');
-                    closeModal('passwordModal');
-                } else showNotification('Failed to update password', 'error');
-            } catch(e) { showNotification('Network error', 'error'); }
+                
+                if (res.ok) {
+                    showNotification('User deleted', 'success');
+                    openUsersModal();
+                }
+            } catch (e) {
+                showNotification('Error deleting user', 'error');
+            }
         }
+
+        function openPasswordModal() {
+            openModal('passwordModal');
+        }
+
+        async function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPasswordField').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                return showNotification('Fill all fields', 'error');
+            }
+            
+            if (newPassword !== confirmPassword) {
+                return showNotification('Passwords do not match', 'error');
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/change-password`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+                });
+                
+                if (res.ok) {
+                    showNotification('Password changed successfully', 'success');
+                    closeModal('passwordModal');
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPasswordField').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    const error = await res.json();
+                    showNotification(error.detail || 'Error changing password', 'error');
+                }
+            } catch (e) {
+                showNotification('Network error', 'error');
+            }
+        }
+
+        // Notifications
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-600',
+                error: 'bg-red-600',
+                info: 'bg-blue-600'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close modals on background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
