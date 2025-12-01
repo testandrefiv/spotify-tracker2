@@ -25,7 +25,8 @@ from db_models import Base, User, Playlist, Track, StreamHistory, UpdateLog
 
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./stream_tracker.db")
-SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_urlsafe(32))
+# Use a static key fallback or the env var to prevent logout on restart
+SECRET_KEY = os.getenv("SECRET_KEY", "CHANGE_THIS_TO_A_PERMANENT_RANDOM_STRING_IN_ENV_OR_HERE")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
@@ -386,7 +387,8 @@ async def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/users/me", response_model=UserData)
+# === CRITICAL FIX: Changed path to /api/users/me to match Dashboard ===
+@app.get("/api/users/me", response_model=UserData)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return {"username": current_user.username, "role": current_user.role}
 
