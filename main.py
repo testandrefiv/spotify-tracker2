@@ -503,7 +503,12 @@ async def get_playlists(
         "spotify_id": p.spotify_id,
         "is_active": p.is_active,
         "last_updated": p.last_updated.isoformat() if p.last_updated else None,
-        "track_count": len(p.tracks)
+        "track_count": len(p.tracks),
+        # NEW: Update status tracking (null-safe for old data)
+        "update_status": getattr(p, 'update_status', 'idle'),
+        "update_started_at": getattr(p, 'update_started_at', None).isoformat() if getattr(p, 'update_started_at', None) else None,
+        "update_completed_at": getattr(p, 'update_completed_at', None).isoformat() if getattr(p, 'update_completed_at', None) else None,
+        "last_successful_update": getattr(p, 'last_successful_update', None).isoformat() if getattr(p, 'last_successful_update', None) else None
     } for p in playlists]
 
 @app.put("/api/playlists/{playlist_id}")
@@ -572,7 +577,11 @@ async def get_summary_data(
         "daily": item.daily_streams,
         "weekly": item.weekly_streams,
         "monthly": item.monthly_streams,
-        "status": "imputed" if item.is_imputed else ("reset" if item.is_reset else ("new" if item.is_new else ("hidden" if item.is_hidden else "ok")))
+        "status": "imputed" if item.is_imputed else ("reset" if item.is_reset else ("new" if item.is_new else ("hidden" if item.is_hidden else "ok"))),
+        # NEW: Scraping metadata (null-safe for old data)
+        "is_simulated": getattr(item, 'is_simulated', False),
+        "scrape_method": getattr(item, 'scrape_method', None),
+        "confidence": getattr(item, 'confidence_score', None)
     } for item in results]
     
     # Calculate playlist-wise totals
