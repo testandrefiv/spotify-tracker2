@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Date, Float
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 
@@ -28,6 +28,12 @@ class Playlist(Base):
     is_active = Column(Boolean, default=True)
     last_updated = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Update status tracking
+    update_status = Column(String, default="idle", nullable=False)  # idle, updating, completed, failed
+    update_started_at = Column(DateTime, nullable=True)
+    update_completed_at = Column(DateTime, nullable=True)
+    last_successful_update = Column(DateTime, nullable=True)
     
     tracks = relationship("Track", back_populates="playlist", cascade="all, delete-orphan")
 
@@ -74,6 +80,12 @@ class StreamHistory(Base):
     is_reset = Column(Boolean, default=False)    # Streams decreased (reset)
     is_new = Column(Boolean, default=False)      # First appearance
     is_hidden = Column(Boolean, default=False)   # Stream count not visible
+    
+    # Scraping metadata
+    is_simulated = Column(Boolean, default=False)  # Data estimated from history (failed scrape)
+    scrape_method = Column(String, nullable=True)  # requests, selenium, simulated, api
+    confidence_score = Column(Float, nullable=True)  # 0.0-1.0 for simulated data quality
+    recorded_at = Column(DateTime, default=datetime.utcnow)  # When this record was created
 
 class UpdateLog(Base):
     """
