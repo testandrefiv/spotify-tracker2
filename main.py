@@ -518,10 +518,10 @@ async def get_playlists(
         "is_active": p.is_active,
         "last_updated": p.last_updated.isoformat() if p.last_updated else None,
         "track_count": len(p.tracks),
-        "update_status": p.update_status,
-        "update_started_at": p.update_started_at.isoformat() if p.update_started_at else None,
-        "update_completed_at": p.update_completed_at.isoformat() if p.update_completed_at else None,
-        "last_successful_update": p.last_successful_update.isoformat() if p.last_successful_update else None
+        "update_status": getattr(p, 'update_status', 'idle'),
+        "update_started_at": getattr(p, 'update_started_at', None).isoformat() if getattr(p, 'update_started_at', None) else None,
+        "update_completed_at": getattr(p, 'update_completed_at', None).isoformat() if getattr(p, 'update_completed_at', None) else None,
+        "last_successful_update": getattr(p, 'last_successful_update', None).isoformat() if getattr(p, 'last_successful_update', None) else None
     } for p in playlists]
 
 @app.put("/api/playlists/{playlist_id}")
@@ -592,10 +592,10 @@ async def get_summary_data(
         "daily": item.daily_streams,
         "weekly": item.weekly_streams,
         "monthly": item.monthly_streams,
-        "status": "simulated" if item.is_simulated else ("imputed" if item.is_imputed else ("reset" if item.is_reset else ("new" if item.is_new else ("hidden" if item.is_hidden else "ok")))),
-        "is_simulated": item.is_simulated,
-        "scrape_method": item.scrape_method,
-        "confidence": item.confidence_score
+        "status": "simulated" if getattr(item, 'is_simulated', False) else ("imputed" if item.is_imputed else ("reset" if item.is_reset else ("new" if item.is_new else ("hidden" if item.is_hidden else "ok")))),
+        "is_simulated": getattr(item, 'is_simulated', False),
+        "scrape_method": getattr(item, 'scrape_method', None),
+        "confidence": getattr(item, 'confidence_score', None)
     } for item in results]
     
     # Calculate playlist-wise totals
@@ -625,8 +625,8 @@ async def get_summary_data(
         playlist_totals[pid]["monthly_streams"] += item.monthly_streams
         playlist_totals[pid]["track_count"] += 1
         
-        # Track real vs simulated separately
-        if item.is_simulated:
+        # Track real vs simulated separately (null-safe for old data)
+        if getattr(item, 'is_simulated', False):
             playlist_totals[pid]["simulated_total_streams"] += item.total_streams
             playlist_totals[pid]["simulated_daily_streams"] += item.daily_streams
         else:
