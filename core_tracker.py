@@ -11,6 +11,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import requests
+from bs4 import BeautifulSoup
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_result
+import random
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_
 
@@ -26,7 +30,21 @@ class SpotifyStreamTracker:
         self.playlist_id = self._parse_playlist_id(playlist_url)
         self.sp = None
         self.driver = None
+        self.driver = None
         self.tracks_data = []
+        self.session = requests.Session()
+        self.session.headers.update({
+             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+             "Accept-Language": "en-US,en;q=0.9",
+        })
+
+    def _rotate_user_agent(self):
+        user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
+        ]
+        self.session.headers.update({"User-Agent": random.choice(user_agents)})
 
     def _parse_playlist_id(self, url):
         match = re.search(r'playlist/([a-zA-Z0-9]+)', url)
@@ -154,11 +172,123 @@ class SpotifyStreamTracker:
         
         return True
 
-    def scrape_stream_count(self, url, track_name):
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+    def _fetch_page_content(self, url):
+        """Robust page fetch using requests with timeout"""
+        try:
+            self._rotate_user_agent()
+            response = self.session.get(url, timeout=15)
+            if response.status_code == 429:
+                print("  ⚠ Rate limited (429), backing off...")
+                time.sleep(10)
+                raise Exception("Rate limited")
+            response.raise_for_status()
+            return response.text
+        except Exception as e:
+            print(f"  ⚠ HTTP Request failed: {e}")
+            raise
+
+    def fetch_stream_count_requests(self, url):
         """
-        Scrapes ONLY from data-testid='playcount' elements.
-        Ignores all other numbers on the page to avoid false matches.
+        Primary strategy: Fast HTML parsing with requests + BeautifulSoup
         """
+        try:
+            html = self._fetch_page_content(url)
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            # Look for specific data-testid="playcount"
+            playcount_element = soup.find(attrs={"data-testid": "playcount"})
+            
+            if playcount_element:
+                text = playcount_element.get_text().strip()
+                if text and any(c.isdigit() for c in text):
+                    return self._extract_stream_count_helper(text)
+            
+            return None
+        except Exception:
+            return None
+
+    def estimate_streams_from_history(self, track_id: int, db: Session) -> tuple:
+        """
+        Estimate stream count based on historical data when scraping fails.
+        Returns: (estimated_value, confidence_score)
+        """
+        try:
+            # Get last 7 days of data for this track
+            history = db.query(StreamHistory).filter(
+                StreamHistory.track_id == track_id,
+                StreamHistory.is_simulated == False  # Only use real data
+            ).order_by(StreamHistory.date.desc()).limit(7).all()
+            
+            if not history:
+                return (None, 0.0)
+            
+            # Get the most recent value
+            last_known = history[0]
+            
+            # Calculate average daily growth
+            if len(history) >= 2:
+                daily_changes = []
+                for i in range(len(history) - 1):
+                    change = history[i].total_streams - history[i+1].total_streams
+                    if change > 0:  # Only count positive growth
+                        daily_changes.append(change)
+                
+                if daily_changes:
+                    avg_daily_growth = sum(daily_changes) / len(daily_changes)
+                    
+                    # Calculate days since last update
+                    days_passed = (date.today() - last_known.date).days
+                    if days_passed <= 0:
+                        days_passed = 1
+                    
+                    estimated_value = int(last_known.total_streams + (avg_daily_growth * days_passed))
+                    
+                    # Confidence based on data quality
+                    confidence = min(len(history) / 7.0, 1.0)  # More history = higher confidence
+                    confidence *= 0.8  # Cap at 80% since it's simulated
+                    
+                    print(f"  📊 Simulated: {estimated_value:,} (confidence: {confidence:.0%}, based on {len(history)} days)")
+                    return (estimated_value, confidence)
+            
+            # If we can't calculate growth, just use last known value
+            confidence = 0.5 if len(history) >= 3 else 0.3
+            print(f"  📊 Simulated: {last_known.total_streams:,} (last known, confidence: {confidence:.0%})")
+            return (last_known.total_streams, confidence)
+            
+        except Exception as e:
+            print(f"  ⚠ Estimation error: {e}")
+            return (None, 0.0)
+
+    def scrape_stream_count_with_telemetry(self, url, track_name, track_id, db):
+        """
+        Enhanced scraping with method tracking and simulation fallback
+        Returns: (stream_count, method_used, confidence_score)
+        """
+        # 1. Try Requests first (Fast, low resource)
+        try:
+            time.sleep(random.uniform(0.5, 1.5))
+            streams = self.fetch_stream_count_requests(url)
+            if streams and self._is_reasonable_stream_count(streams):
+                self.scrape_stats["requests_success"] += 1
+                return (streams, "requests", 1.0)
+        except Exception:
+            pass
+
+        print(f"  ℹ Falling back to Selenium for: {track_name}")
+        
+        # 2. Selenium Fallback
+        if not self.driver:
+            if not self.setup_driver():
+                print(f"  ✗ Failed to initialize Selenium, trying simulation")
+                # Go straight to simulation
+                estimated, confidence = self.estimate_streams_from_history(track_id, db)
+                if estimated:
+                    self.scrape_stats["simulated"] += 1
+                    return (estimated, "simulated", confidence)
+                self.scrape_stats["failed"] += 1
+                return (0, "failed", 0.0)
+
         original_window = self.driver.current_window_handle
         
         for attempt in range(2):
@@ -181,12 +311,12 @@ class SpotifyStreamTracker:
                     playcount_elements = self.driver.find_elements(By.CSS_SELECTOR, "[data-testid='playcount']")
                     
                     if playcount_elements:
-                        print(f"  → Found {len(playcount_elements)} playcount element(s)")
+                        # print(f"  → Found {len(playcount_elements)} playcount element(s)")
                         
                         for idx, elem in enumerate(playcount_elements):
                             try:
                                 text = elem.text.strip()
-                                print(f"    Element {idx+1}: '{text}'")
+                                # print(f"    Element {idx+1}: '{text}'")
                                 
                                 # Only extract if text contains digits
                                 if text and any(c.isdigit() for c in text):
@@ -197,7 +327,8 @@ class SpotifyStreamTracker:
                                         print(f"  ✓ {track_name}: {streams:,} streams")
                                         self.driver.close()
                                         self.driver.switch_to.window(original_window)
-                                        return streams
+                                        self.scrape_stats["selenium_success"] += 1
+                                        return (streams, "selenium", 1.0)
                                     elif streams:
                                         print(f"    → Rejected {streams:,} (likely timestamp/metadata)")
                                         
@@ -233,7 +364,8 @@ class SpotifyStreamTracker:
                                 print(f"  ✓ {track_name}: {streams:,} streams (JS extraction)")
                                 self.driver.close()
                                 self.driver.switch_to.window(original_window)
-                                return streams
+                                self.scrape_stats["selenium_success"] += 1
+                                return (streams, "selenium", 1.0)
                             elif streams:
                                 print(f"    → Rejected {streams:,} (unreasonable)")
                 except Exception as js_error:
@@ -256,8 +388,17 @@ class SpotifyStreamTracker:
                     pass
                 print(f"  ⚠ Attempt {attempt+1} error: {type(e).__name__}")
 
-        print(f"  ✗ {track_name}: Could not find valid stream count")
-        return 0
+        # 3. All scraping failed - try simulation
+        print(f"  ✗ {track_name}: Selenium failed, trying simulation")
+        estimated, confidence = self.estimate_streams_from_history(track_id, db)
+        if estimated:
+            self.scrape_stats["simulated"] += 1
+            return (estimated, "simulated", confidence)
+        
+        # 4. Complete failure
+        print(f"  ✗ {track_name}: Could not find valid stream count (no history for simulation)")
+        self.scrape_stats["failed"] += 1
+        return (0, "failed", 0.0)
 
     def calculate_aggregates(self, db: Session, track_id: int, today_daily: int, today_date: date):
         """Calculate weekly and monthly aggregates"""
@@ -294,11 +435,25 @@ class SpotifyStreamTracker:
         try:
             if not self.setup_spotipy():
                 raise Exception("Failed to initialize Spotify API")
-            if not self.setup_driver():
-                raise Exception("Failed to initialize WebDriver")
+            if not self.setup_spotipy():
+                raise Exception("Failed to initialize Spotify API")
+            
+            # Setup Selenium later only if needed or preemptively if preferred
+            # We delay Selenium setup to save resources if not everything needs it
+            # But existing logic might expect it enabled. Let's keep it for safety for now
+            # or make it lazy. For "robustness" on Railway, let's MAKE IT LAZY.
+            # if not self.setup_driver():
+            #     raise Exception("Failed to initialize WebDriver")
 
+            # Update playlist status to "updating"
+            playlist_obj.update_status = "updating"
+            playlist_obj.update_started_at = datetime.utcnow()
+            db.commit()
+            
             api_tracks = self.fetch_tracks_api()
             if not api_tracks:
+                playlist_obj.update_status = "failed"
+                db.commit()
                 raise Exception("No tracks found via API")
 
             today_date = date.today()
@@ -340,16 +495,21 @@ class SpotifyStreamTracker:
                 # PRINT HERE: Only print if we are actually processing the song
                 print(f"\n[{idx}/{len(api_tracks)}] Processing: {t_data['name']}")
 
-                total_streams = self.scrape_stream_count(t_data['url'], t_data['name'])
+                # Use telemetry-based scraping
+                total_streams, scrape_method, confidence = self.scrape_stream_count_with_telemetry(
+                    t_data['url'], t_data['name'], db_track.id, db
+                )
                 
                 last_entry = db.query(StreamHistory).filter(
                     StreamHistory.track_id == db_track.id
                 ).order_by(desc(StreamHistory.date)).first()
 
+                
                 is_new = False
                 is_reset = False
                 is_imputed = False
                 is_hidden = (total_streams == 0)
+                is_simulated = (scrape_method == "simulated")
                 daily_diff = 0
 
                 if is_hidden and last_entry:
@@ -415,7 +575,10 @@ class SpotifyStreamTracker:
                     is_new=is_new,
                     is_reset=is_reset,
                     is_imputed=is_imputed,
-                    is_hidden=is_hidden
+                    is_hidden=is_hidden,
+                    is_simulated=is_simulated,
+                    scrape_method=scrape_method,
+                    confidence_score=confidence if is_simulated else None
                 )
                 db.add(new_history)
                 processed_count += 1
@@ -423,14 +586,28 @@ class SpotifyStreamTracker:
                 # 2. FIX: Save immediately to prevent duplicate "New" entries in same playlist
                 db.commit()
 
+            # Mark playlist as completed
             playlist_obj.last_updated = datetime.utcnow()
+            playlist_obj.update_completed_at = datetime.utcnow()
+            playlist_obj.last_successful_update = datetime.utcnow()
+            playlist_obj.update_status = "completed"
             db.commit()
             
             print(f"\n{'='*60}")
             print(f"✓ Successfully processed {processed_count} tracks")
+            print(f"\n📊 Scraping Statistics:")
+            print(f"  Requests Success: {self.scrape_stats['requests_success']}")
+            print(f"  Selenium Success: {self.scrape_stats['selenium_success']}")
+            print(f"  Simulated: {self.scrape_stats['simulated']}")
+            print(f"  Failed: {self.scrape_stats['failed']}")
             print(f"{'='*60}\n")
             
         except Exception as e:
+            # Mark playlist as failed
+            playlist_obj.update_status = "failed"
+            playlist_obj.update_completed_at = datetime.utcnow()
+            db.commit()
+            
             print(f"\n✗ ERROR: {e}")
             traceback.print_exc()
             raise
