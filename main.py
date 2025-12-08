@@ -20,9 +20,6 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from pytz import timezone
-import traceback
-
 
 from db_models import Base, User, Playlist, Track, StreamHistory, UpdateLog
 
@@ -33,14 +30,11 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
 # Email Configuration
-SMTP_HOST = os.getenv("SMTP_HOST", os.getenv("SMTP_SERVER", "smtp.gmail.com"))
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-SMTP_USER = os.getenv("SMTP_USER", os.getenv("SENDER_EMAIL", ""))
-SMTP_PASS = os.getenv("SMTP_PASS", os.getenv("SENDER_PASSWORD", ""))
-EMAIL_FROM = os.getenv("EMAIL_FROM", SMTP_USER)
-EMAIL_ADMIN = os.getenv("EMAIL_ADMIN", "andre@sevenstudios.se")
-RECIPIENT_EMAIL = EMAIL_ADMIN # For backward compatibility or use EMAIL_ADMIN
-
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "")
+SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", "")
+RECIPIENT_EMAIL = "andre@sevenstudios.se"
 
 # Database Setup
 engine = create_engine(
@@ -76,7 +70,6 @@ class PlaylistCreate(BaseModel):
 
 class PlaylistUpdate(BaseModel):
     name: Optional[str] = None
-    custom_name: Optional[str] = None
     is_active: Optional[bool] = None
 
 # Dependencies
@@ -127,46 +120,20 @@ def get_admin_user(current_user: User = Depends(get_current_user)):
 # ============================================================================
 # EMAIL SERVICE
 # ============================================================================
-# ============================================================================
-# EMAIL SERVICE
-# ============================================================================
-def send_email_robust(subject, html_content, to_email):
-    """Sends email with error handling and fallback logic if implemented."""
-    if not SMTP_USER or not SMTP_PASS:
-        print("✗ Email credentials not set (SMTP_USER/SMTP_PASS). Skipping.")
-        return False
-        
-    msg = MIMEMultipart("alternative")
-    msg['Subject'] = subject
-    msg['From'] = EMAIL_FROM
-    msg['To'] = to_email
-
-    msg.attach(MIMEText(html_content, 'html'))
-
-    try:
-        # standard SMTP
-        server = smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30)
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASS)
-        server.sendmail(EMAIL_FROM, to_email, msg.as_string())
-        server.quit()
-        print(f"✓ Email successfully sent to {to_email}")
-        return True
-    except Exception as e:
-        print(f"✗ Failed to send email via SMTP: {e}")
-        # Here we could implement fallback to SendGrid if keys were present
-        return False
-
 def send_daily_summary_email(db: Session):
     """Calculates totals for today and sends an email."""
     print("Preparing daily summary email...")
     
+    if not SENDER_EMAIL or not SENDER_PASSWORD:
+        print("✗ Email credentials not set. Skipping email.")
+        return
+
     # Get today's stats
     latest_date = db.query(func.max(StreamHistory.date)).scalar()
     
     if not latest_date:
         print("✗ No data found to email.")
-        return False
+        return
 
     # Aggregate Data
     stats = db.query(
@@ -179,49 +146,69 @@ def send_daily_summary_email(db: Session):
 
     total_playlists = db.query(Playlist).filter(Playlist.is_active == True).count()
 
+    # Create Email Content
+    msg = MIMEMultipart("alternative")
+    msg['Subject'] = f"Daily Spotify Stream Update - {latest_date.strftime('%Y-%m-%d')}"
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = RECIPIENT_EMAIL
+
     html_content = f"""
     <html>
-      <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.6;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #1DB954; border-bottom: 2px solid #1DB954; padding-bottom: 10px;">Spotify Daily Analytics</h2>
-            <p style="font-size: 16px;">Here are the scraped stats for <strong>{latest_date.strftime('%Y-%m-%d')}</strong>:</p>
-            
-            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                <table style="width: 100%; border-collapse: collapse;">
-                  <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px 0; color: #666;">Total Streams</td>
-                    <td style="padding: 12px 0; text-align: right; font-size: 18px; font-weight: bold;">{stats.total:,.0f}</td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px 0; color: #666;">Daily Growth</td>
-                    <td style="padding: 12px 0; text-align: right; color: #1DB954; font-weight: bold;">+{stats.daily:,.0f}</td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px 0; color: #666;">Weekly Growth (7d)</td>
-                    <td style="padding: 12px 0; text-align: right;">+{stats.weekly:,.0f}</td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px 0; color: #666;">Monthly Growth (30d)</td>
-                    <td style="padding: 12px 0; text-align: right;">+{stats.monthly:,.0f}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px 0; color: #666;">Active Playlists</td>
-                    <td style="padding: 12px 0; text-align: right;">{total_playlists}</td>
-                  </tr>
-                </table>
-            </div>
-            
-            <p style="font-size: 12px; color: #999; text-align: center; margin-top: 30px;">
-              Sent automatically by Spotify Stream Tracker.
-            </p>
-        </div>
+      <body style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #1DB954;">Spotify Daily Analytics</h2>
+        <p>Here are the aggregated stats for <strong>{latest_date.strftime('%Y-%m-%d')}</strong>:</p>
+        
+        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
+          <tr style="background-color: #f2f2f2;">
+            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Metric</th>
+            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Value</th>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;">Total Streams</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;"><strong>{stats.total:,.0f}</strong></td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;">Daily Growth</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; color: #1DB954;">+{stats.daily:,.0f}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;">Weekly Growth (7d)</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">+{stats.weekly:,.0f}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;">Monthly Growth (30d)</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">+{stats.monthly:,.0f}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;">Active Playlists</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{total_playlists}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;">Tracks Tracked</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{stats.tracks}</td>
+          </tr>
+        </table>
+        
+        <p style="font-size: 12px; color: #777; margin-top: 20px;">
+          Sent automatically by Spotify Stream Tracker.
+        </p>
       </body>
     </html>
     """
 
-    return send_email_robust(f"Daily Spotify Stream Update - {latest_date.strftime('%Y-%m-%d')}", html_content, EMAIL_ADMIN)
+    msg.attach(MIMEText(html_content, 'html'))
 
-
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, msg.as_string())
+        server.quit()
+        print(f"✓ Email successfully sent to {RECIPIENT_EMAIL}")
+        return True
+    except Exception as e:
+        print(f"✗ Failed to send email: {e}")
+        return False
 
 # Scheduler
 scheduler = BackgroundScheduler()
@@ -354,7 +341,7 @@ def startup_event():
     # Start scheduler (runs daily at 3 AM)
     scheduler.add_job(
         run_tracker_job,
-        CronTrigger(hour=1, minute=0, timezone=timezone('Europe/Stockholm')),
+        CronTrigger(hour=3, minute=0),
         id='daily_update',
         name='Daily Playlist Update',
         replace_existing=True
@@ -512,16 +499,11 @@ async def get_playlists(
     return [{
         "id": p.id,
         "name": p.name,
-        "custom_name": p.custom_name,
         "url": p.url,
         "spotify_id": p.spotify_id,
         "is_active": p.is_active,
         "last_updated": p.last_updated.isoformat() if p.last_updated else None,
-        "track_count": len(p.tracks),
-        "update_status": getattr(p, 'update_status', 'idle'),
-        "update_started_at": getattr(p, 'update_started_at', None).isoformat() if getattr(p, 'update_started_at', None) else None,
-        "update_completed_at": getattr(p, 'update_completed_at', None).isoformat() if getattr(p, 'update_completed_at', None) else None,
-        "last_successful_update": getattr(p, 'last_successful_update', None).isoformat() if getattr(p, 'last_successful_update', None) else None
+        "track_count": len(p.tracks)
     } for p in playlists]
 
 @app.put("/api/playlists/{playlist_id}")
@@ -537,8 +519,6 @@ async def update_playlist(
     
     if update_data.name is not None:
         playlist.name = update_data.name
-    if update_data.custom_name is not None:
-        playlist.custom_name = update_data.custom_name
     if update_data.is_active is not None:
         playlist.is_active = update_data.is_active
     
@@ -592,10 +572,7 @@ async def get_summary_data(
         "daily": item.daily_streams,
         "weekly": item.weekly_streams,
         "monthly": item.monthly_streams,
-        "status": "simulated" if getattr(item, 'is_simulated', False) else ("imputed" if item.is_imputed else ("reset" if item.is_reset else ("new" if item.is_new else ("hidden" if item.is_hidden else "ok")))),
-        "is_simulated": getattr(item, 'is_simulated', False),
-        "scrape_method": getattr(item, 'scrape_method', None),
-        "confidence": getattr(item, 'confidence_score', None)
+        "status": "imputed" if item.is_imputed else ("reset" if item.is_reset else ("new" if item.is_new else ("hidden" if item.is_hidden else "ok")))
     } for item in results]
     
     # Calculate playlist-wise totals
@@ -612,11 +589,7 @@ async def get_summary_data(
                 "daily_streams": 0,
                 "weekly_streams": 0,
                 "monthly_streams": 0,
-                "track_count": 0,
-                "real_total_streams": 0,
-                "simulated_total_streams": 0,
-                "real_daily_streams": 0,
-                "simulated_daily_streams": 0
+                "track_count": 0
             }
         
         playlist_totals[pid]["total_streams"] += item.total_streams
@@ -624,14 +597,6 @@ async def get_summary_data(
         playlist_totals[pid]["weekly_streams"] += item.weekly_streams
         playlist_totals[pid]["monthly_streams"] += item.monthly_streams
         playlist_totals[pid]["track_count"] += 1
-        
-        # Track real vs simulated separately (null-safe for old data)
-        if getattr(item, 'is_simulated', False):
-            playlist_totals[pid]["simulated_total_streams"] += item.total_streams
-            playlist_totals[pid]["simulated_daily_streams"] += item.daily_streams
-        else:
-            playlist_totals[pid]["real_total_streams"] += item.total_streams
-            playlist_totals[pid]["real_daily_streams"] += item.daily_streams
     
     # Calculate overall total across all playlists
     overall_total = {
@@ -640,11 +605,7 @@ async def get_summary_data(
         "weekly_streams": sum(p["weekly_streams"] for p in playlist_totals.values()),
         "monthly_streams": sum(p["monthly_streams"] for p in playlist_totals.values()),
         "total_tracks": sum(p["track_count"] for p in playlist_totals.values()),
-        "total_playlists": len(playlist_totals),
-        "real_total_streams": sum(p["real_total_streams"] for p in playlist_totals.values()),
-        "simulated_total_streams": sum(p["simulated_total_streams"] for p in playlist_totals.values()),
-        "real_daily_streams": sum(p["real_daily_streams"] for p in playlist_totals.values()),
-        "simulated_daily_streams": sum(p["simulated_daily_streams"] for p in playlist_totals.values())
+        "total_playlists": len(playlist_totals)
     }
     
     return {
