@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,29 +9,62 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { height: 8px; width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
         @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-        
-        .animate-slide-in { animation: slideInRight 0.3s ease-out; }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        
+
+        .animate-slide-in {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
         .status-badge {
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -39,18 +73,19 @@
             background-color: rgba(0, 0, 0, 0.75);
             animation: fadeIn 0.2s ease-out;
         }
-        
+
         .modal.active {
             display: flex;
             align-items: center;
             justify-center;
         }
-        
+
         .modal-content {
             animation: slideInRight 0.3s ease-out;
         }
     </style>
 </head>
+
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
 
     <!-- Navigation -->
@@ -61,7 +96,8 @@
                     <div class="flex items-center gap-2">
                         <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
                             <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                                <path
+                                    d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
                             </svg>
                         </div>
                         <span class="text-white font-bold text-xl">Stream Tracker</span>
@@ -70,13 +106,16 @@
                 <div class="flex items-center gap-4">
                     <div id="userInfo" class="hidden md:flex items-center gap-2 text-sm text-gray-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span id="userInfoText"></span>
                     </div>
-                    <button onclick="logout()" class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
+                    <button onclick="logout()"
+                        class="text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         Logout
                     </button>
@@ -87,7 +126,7 @@
 
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        
+
         <!-- System Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
@@ -98,13 +137,15 @@
                     </div>
                     <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                            <path fill-rule="evenodd"
+                                d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
@@ -113,12 +154,13 @@
                     </div>
                     <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                            <path
+                                d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
                         </svg>
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
@@ -127,12 +169,14 @@
                     </div>
                     <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500/50 transition">
                 <div class="flex items-center justify-between">
                     <div>
@@ -141,7 +185,9 @@
                     </div>
                     <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
                         <svg class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                 </div>
@@ -153,51 +199,60 @@
             <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
                 <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                     <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                        <path fill-rule="evenodd"
+                            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                            clip-rule="evenodd" />
                     </svg>
                     Admin Controls
                 </h3>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Add Playlist -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Add Playlist</label>
                         <div class="flex gap-2">
-                            <input type="text" id="playlistUrl" placeholder="Spotify Playlist URL" 
+                            <input type="text" id="playlistUrl" placeholder="Spotify Playlist URL"
                                 class="flex-1 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5">
-                            <button onclick="addPlaylist()" class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition whitespace-nowrap">
+                            <button onclick="addPlaylist()"
+                                class="bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition whitespace-nowrap">
                                 Add
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Quick Actions -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Actions</label>
                         <div class="flex gap-2">
-                            <button onclick="forceUpdate()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition flex items-center justify-center gap-2">
+                            <button onclick="forceUpdate()"
+                                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
                                 Force Update
                             </button>
-                            <button onclick="openLogsModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                            <button onclick="openLogsModal()"
+                                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
                                 Logs
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Management -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Management</label>
                         <div class="flex gap-2">
-                            <button onclick="openPlaylistsModal()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                            <button onclick="openPlaylistsModal()"
+                                class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
                                 Playlists
                             </button>
-                            <button onclick="openUsersModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                            <button onclick="openUsersModal()"
+                                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
                                 Users
                             </button>
-                            <button onclick="openPasswordModal()" class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                            <button onclick="openPasswordModal()"
+                                class="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
                                 Password
                             </button>
                         </div>
@@ -210,39 +265,44 @@
         <div class="bg-gray-800 rounded-xl shadow-xl border border-gray-700 overflow-hidden">
             <!-- Tabs -->
             <div class="flex border-b border-gray-700 overflow-x-auto">
-                <button onclick="switchTab('summary')" id="tab-summary" 
+                <button onclick="switchTab('summary')" id="tab-summary"
                     class="px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap">
                     📊 Summary View
                 </button>
-                <button onclick="switchTab('totals')" id="tab-totals" 
+                <button onclick="switchTab('totals')" id="tab-totals"
                     class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
                     🧮 Totals & Aggregates
                 </button>
-                <button onclick="switchTab('sheets')" id="tab-sheets" 
+                <button onclick="switchTab('sheets')" id="tab-sheets"
                     class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
                     📑 Sheets View
                 </button>
-                <button onclick="switchTab('full')" id="tab-full" 
+                <button onclick="switchTab('full')" id="tab-full"
                     class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
                     📜 Full History
+                </button>
+                <button onclick="switchTab('trends')" id="tab-trends"
+                    class="px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap">
+                    📈 Trends
                 </button>
             </div>
 
             <!-- Toolbar -->
             <div class="p-4 border-b border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div class="flex gap-3 w-full sm:w-auto">
-                    <input type="text" id="tableSearch" onkeyup="filterTable()" 
-                        placeholder="Search tracks or artists..." 
+                    <input type="text" id="tableSearch" onkeyup="filterTable()"
+                        placeholder="Search tracks or artists..."
                         class="flex-1 sm:w-64 bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2">
-                    <select id="playlistFilter" onchange="filterByPlaylist()" 
+                    <select id="playlistFilter" onchange="filterByPlaylist()"
                         class="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 p-2">
                         <option value="">All Playlists</option>
                     </select>
                 </div>
-                <button onclick="loadData()" 
+                <button onclick="loadData()"
                     class="text-sm text-green-400 hover:text-green-300 flex items-center gap-1 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Refresh Data
                 </button>
@@ -259,10 +319,12 @@
                             </th>
                             <th class="px-6 py-3">Artist</th>
                             <th class="px-6 py-3">Playlist</th>
-                            <th class="px-6 py-3 text-right cursor-pointer hover:bg-gray-700" onclick="sortTable('total')">
+                            <th class="px-6 py-3 text-right cursor-pointer hover:bg-gray-700"
+                                onclick="sortTable('total')">
                                 Total Streams <span id="sort-total"></span>
                             </th>
-                            <th class="px-6 py-3 text-right cursor-pointer hover:bg-gray-700" onclick="sortTable('daily')">
+                            <th class="px-6 py-3 text-right cursor-pointer hover:bg-gray-700"
+                                onclick="sortTable('daily')">
                                 Daily <span id="sort-daily"></span>
                             </th>
                             <th class="px-6 py-3 text-right">Weekly</th>
@@ -278,10 +340,12 @@
                 <!-- Totals View -->
                 <div id="totalsView" class="p-6 hidden">
                     <!-- Overall Total Card -->
-                    <div class="mb-6 bg-gradient-to-r from-green-900/30 to-blue-900/30 border-2 border-green-500/50 rounded-xl p-6">
+                    <div
+                        class="mb-6 bg-gradient-to-r from-green-900/30 to-blue-900/30 border-2 border-green-500/50 rounded-xl p-6">
                         <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                                <path
+                                    d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                             </svg>
                             Overall Total (All Playlists Combined)
                         </h3>
@@ -323,7 +387,8 @@
                 <!-- Sheets View -->
                 <div id="sheetsView" class="hidden">
                     <div class="p-4 bg-gray-750 border-b border-gray-700">
-                        <p class="text-sm text-gray-400">📑 Each playlist displayed as a separate sheet with all tracks and totals</p>
+                        <p class="text-sm text-gray-400">📑 Each playlist displayed as a separate sheet with all tracks
+                            and totals</p>
                     </div>
                     <div id="sheetsContainer" class="p-6 space-y-8">
                         <!-- Sheets injected here -->
@@ -349,18 +414,25 @@
                         <!-- Rows injected here -->
                     </tbody>
                 </table>
-                
+
                 <div id="loadingSpinner" class="hidden p-10 text-center">
-                    <svg class="inline w-8 h-8 text-gray-200 animate-spin fill-green-600" viewBox="0 0 100 101" fill="none">
-                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6601 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                    <svg class="inline w-8 h-8 text-gray-200 animate-spin fill-green-600" viewBox="0 0 100 101"
+                        fill="none">
+                        <path
+                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                            fill="currentColor" />
+                        <path
+                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6601 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                            fill="currentFill" />
                     </svg>
                     <p class="mt-2 text-gray-400">Loading data...</p>
                 </div>
-                
+
                 <div id="noDataMessage" class="hidden p-10 text-center text-gray-400">
-                    <svg class="inline w-16 h-16 mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    <svg class="inline w-16 h-16 mb-4 text-gray-600" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                     </svg>
                     <p class="text-lg font-semibold">No data available yet</p>
                     <p class="text-sm mt-2">Add playlists and run an update to start tracking streams</p>
@@ -370,15 +442,17 @@
     </main>
 
     <!-- MODALS -->
-    
+
     <!-- Logs Modal -->
     <div id="logsModal" class="modal">
-        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+        <div
+            class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
                 <h3 class="text-xl font-semibold text-white">Update Logs</h3>
                 <button onclick="closeModal('logsModal')" class="text-gray-400 hover:text-white transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -392,12 +466,14 @@
 
     <!-- Playlists Management Modal -->
     <div id="playlistsModal" class="modal">
-        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+        <div
+            class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
                 <h3 class="text-xl font-semibold text-white">Manage Playlists</h3>
                 <button onclick="closeModal('playlistsModal')" class="text-gray-400 hover:text-white transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -411,12 +487,14 @@
 
     <!-- Users Management Modal -->
     <div id="usersModal" class="modal">
-        <div class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+        <div
+            class="modal-content bg-gray-800 rounded-xl border border-gray-700 max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-700 flex justify-between items-center">
                 <h3 class="text-xl font-semibold text-white">Manage Users</h3>
                 <button onclick="closeModal('usersModal')" class="text-gray-400 hover:text-white transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -425,20 +503,22 @@
                 <div class="mb-6 p-4 bg-gray-700 rounded-lg">
                     <h4 class="text-sm font-semibold text-white mb-3">Add New User</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <input type="text" id="newUsername" placeholder="Username" 
+                        <input type="text" id="newUsername" placeholder="Username"
                             class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
-                        <input type="password" id="newPassword" placeholder="Password" 
+                        <input type="password" id="newPassword" placeholder="Password"
                             class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
-                        <select id="newRole" class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
+                        <select id="newRole"
+                            class="bg-gray-600 border border-gray-500 text-white text-sm rounded-lg p-2">
                             <option value="regular">Regular</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <button onclick="createUser()" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
+                    <button onclick="createUser()"
+                        class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2 transition">
                         Add User
                     </button>
                 </div>
-                
+
                 <!-- Users List -->
                 <div id="usersList" class="space-y-3">
                     <!-- Users injected here -->
@@ -454,7 +534,8 @@
                 <h3 class="text-xl font-semibold text-white">Change Password</h3>
                 <button onclick="closeModal('passwordModal')" class="text-gray-400 hover:text-white transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -462,20 +543,21 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
-                        <input type="password" id="oldPassword" 
+                        <input type="password" id="oldPassword"
                             class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
-                        <input type="password" id="newPasswordField" 
+                        <input type="password" id="newPasswordField"
                             class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" 
+                        <input type="password" id="confirmPassword"
                             class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2.5">
                     </div>
-                    <button onclick="changePassword()" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2.5 transition">
+                    <button onclick="changePassword()"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm px-4 py-2.5 transition">
                         Change Password
                     </button>
                 </div>
@@ -516,9 +598,9 @@
                 const res = await fetch(`${API_BASE}/users/me`, { headers: getHeaders() });
                 if (!res.ok) throw new Error();
                 currentUser = await res.json();
-                
+
                 document.getElementById('userInfoText').textContent = `${currentUser.username} (${currentUser.role})`;
-                
+
                 if (currentUser.role === 'admin') {
                     document.getElementById('adminControls').classList.remove('hidden');
                 }
@@ -537,12 +619,12 @@
             try {
                 const res = await fetch(`${API_BASE}/api/stats`, { headers: getHeaders() });
                 const stats = await res.json();
-                
+
                 document.getElementById('statTotalPlaylists').textContent = stats.total_playlists;
                 document.getElementById('statTotalTracks').textContent = stats.total_tracks.toLocaleString();
                 document.getElementById('statTotalRecords').textContent = stats.total_records.toLocaleString();
-                document.getElementById('statLastUpdate').textContent = stats.last_update 
-                    ? new Date(stats.last_update).toLocaleDateString() 
+                document.getElementById('statLastUpdate').textContent = stats.last_update
+                    ? new Date(stats.last_update).toLocaleDateString()
                     : 'Never';
             } catch (e) {
                 console.error('Error loading stats', e);
@@ -555,7 +637,7 @@
             const noData = document.getElementById('noDataMessage');
             const tbodySum = document.getElementById('summaryBody');
             const tbodyFull = document.getElementById('fullBody');
-            
+
             spinner.classList.remove('hidden');
             noData.classList.add('hidden');
             tbodySum.innerHTML = '';
@@ -564,18 +646,18 @@
             try {
                 const playlistId = document.getElementById('playlistFilter').value;
                 const params = playlistId ? `?playlist_id=${playlistId}` : '';
-                
+
                 const [resSummary, resFull, resSheets] = await Promise.all([
                     fetch(`${API_BASE}/api/summary${params}`, { headers: getHeaders() }),
                     fetch(`${API_BASE}/api/full_data${params}`, { headers: getHeaders() }),
                     fetch(`${API_BASE}/api/sheets_view`, { headers: getHeaders() })
                 ]);
-                
+
                 summaryData = await resSummary.json();
                 cachedSummary = summaryData.tracks || [];
                 cachedFull = await resFull.json();
                 cachedSheets = await resSheets.json();
-                
+
                 if (cachedSummary.length === 0 && cachedFull.length === 0) {
                     noData.classList.remove('hidden');
                 } else {
@@ -584,7 +666,7 @@
                     renderTotals(summaryData);
                     renderSheets(cachedSheets);
                 }
-                
+
                 await loadStats();
             } catch (e) {
                 console.error('Error loading data', e);
@@ -638,9 +720,9 @@
 
         function renderTotals(data) {
             if (!data || !data.overall_total) return;
-            
+
             const overall = data.overall_total;
-            
+
             // Overall totals
             document.getElementById('overallPlaylists').textContent = overall.total_playlists || 0;
             document.getElementById('overallTracks').textContent = (overall.total_tracks || 0).toLocaleString();
@@ -648,16 +730,16 @@
             document.getElementById('overallDaily').textContent = formatChange(overall.daily_streams || 0);
             document.getElementById('overallWeekly').textContent = formatChange(overall.weekly_streams || 0);
             document.getElementById('overallMonthly').textContent = formatChange(overall.monthly_streams || 0);
-            
+
             // Playlist-wise cards
             const container = document.getElementById('playlistTotalsContainer');
             const playlistTotals = data.playlist_totals || [];
-            
+
             container.innerHTML = playlistTotals.map(p => `
                 <div class="bg-gray-750 border border-gray-700 rounded-xl p-6 hover:border-green-500/50 transition">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h4 class="text-lg font-bold text-white">${escapeHtml(p.playlist_name)}</h4>
+                            <h4 class="text-lg font-bold text-white">${escapeHtml(p.custom_name || p.playlist_name)}</h4>
                             <p class="text-sm text-gray-400">${p.track_count} tracks</p>
                         </div>
                         <div class="px-3 py-1 bg-green-900/30 text-green-400 rounded-lg text-sm font-semibold">
@@ -684,7 +766,7 @@
 
         function renderSheets(sheets) {
             const container = document.getElementById('sheetsContainer');
-            
+
             container.innerHTML = sheets.map((sheet, idx) => `
                 <div class="bg-gray-750 border-2 border-gray-700 rounded-xl overflow-hidden">
                     <!-- Sheet Header -->
@@ -692,7 +774,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-xl font-bold text-white mb-2">
-                                    Sheet ${idx + 1}: ${escapeHtml(sheet.playlist_name)}
+                                    Sheet ${idx + 1}: ${escapeHtml(sheet.custom_name || sheet.playlist_name)}
                                 </h3>
                                 <div class="flex gap-4 text-sm text-gray-400">
                                     <span>📊 ${sheet.tracks.length} tracks</span>
@@ -823,6 +905,7 @@
 
         function getStatusBadge(status) {
             const badges = {
+                'simulated': '<span class="px-2 py-1 text-xs font-semibold text-purple-200 bg-purple-900/50 border border-purple-700 rounded status-badge">🔮 Simulated</span>',
                 'new': '<span class="px-2 py-1 text-xs font-semibold text-blue-200 bg-blue-900/50 border border-blue-700 rounded status-badge">New</span>',
                 'imputed': '<span class="px-2 py-1 text-xs font-semibold text-yellow-200 bg-yellow-900/50 border border-yellow-700 rounded status-badge">Imputed</span>',
                 'reset': '<span class="px-2 py-1 text-xs font-semibold text-red-200 bg-red-900/50 border border-red-700 rounded status-badge">Reset</span>',
@@ -838,40 +921,42 @@
         }
 
         // UI Logic
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            // Reset all tabs
-            ['summary', 'totals', 'sheets', 'full'].forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if (btn) {
-                    btn.className = 'px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap';
-                }
-            });
-            
-            // Activate current tab
-            const activeBtn = document.getElementById(`tab-${tab}`);
-            if (activeBtn) {
-                activeBtn.className = 'px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap';
+        currentTab = tab;
+
+        // Reset all tabs
+        ['summary', 'totals', 'sheets', 'full', 'trends'].forEach(t => {
+            const btn = document.getElementById(`tab-${t}`);
+            if (btn) {
+                btn.className = 'px-6 py-4 text-sm font-medium text-gray-400 hover:text-gray-200 focus:outline-none transition whitespace-nowrap';
             }
-            
-            // Show/hide content
-            document.getElementById('summaryTable').classList.add('hidden');
-            document.getElementById('totalsView').classList.add('hidden');
-            document.getElementById('sheetsView').classList.add('hidden');
-            document.getElementById('fullTable').classList.add('hidden');
-            
-            if (tab === 'summary') {
-                document.getElementById('summaryTable').classList.remove('hidden');
-            } else if (tab === 'totals') {
-                document.getElementById('totalsView').classList.remove('hidden');
-            } else if (tab === 'sheets') {
-                document.getElementById('sheetsView').classList.remove('hidden');
-            } else if (tab === 'full') {
-                document.getElementById('fullTable').classList.remove('hidden');
-            }
-            
-            filterTable();
+        });
+
+        // Activate current tab
+        const activeBtn = document.getElementById(`tab-${tab}`);
+        if (activeBtn) {
+            activeBtn.className = 'px-6 py-4 text-sm font-medium text-green-500 border-b-2 border-green-500 focus:outline-none transition whitespace-nowrap';
+        }
+
+        // Show/hide content
+        document.getElementById('summaryTable').classList.add('hidden');
+        document.getElementById('totalsView').classList.add('hidden');
+        document.getElementById('sheetsView').classList.add('hidden');
+        document.getElementById('fullTable').classList.add('hidden');
+
+        if (tab === 'summary') {
+            document.getElementById('summaryTable').classList.remove('hidden');
+        } else if (tab === 'totals') {
+            document.getElementById('totalsView').classList.remove('hidden');
+        } else if (tab === 'sheets') {
+            document.getElementById('sheetsView').classList.remove('hidden');
+        } else if (tab === 'full') {
+            document.getElementById('fullTable').classList.remove('hidden');
+        } else if (tab === 'trends') {
+            document.getElementById('trendsView').classList.remove('hidden');
+            loadTrends(); // Load trends when tab is clicked
+        }
+
+        filterTable();
         }
 
         function filterTable() {
@@ -900,12 +985,12 @@
             const sorted = [...cachedSummary].sort((a, b) => {
                 let valA = a[column];
                 let valB = b[column];
-                
+
                 if (typeof valA === 'string') {
                     valA = valA.toLowerCase();
                     valB = valB.toLowerCase();
                 }
-                
+
                 if (currentSort.direction === 'asc') {
                     return valA > valB ? 1 : -1;
                 } else {
@@ -914,7 +999,7 @@
             });
 
             renderSummary(sorted);
-            
+
             // Update sort indicators
             document.querySelectorAll('[id^="sort-"]').forEach(el => el.textContent = '');
             const indicator = currentSort.direction === 'asc' ? '↑' : '↓';
@@ -926,10 +1011,15 @@
             try {
                 const res = await fetch(`${API_BASE}/api/playlists`, { headers: getHeaders() });
                 allPlaylists = await res.json();
-                
+
                 const filter = document.getElementById('playlistFilter');
-                filter.innerHTML = '<option value="">All Playlists</option>' + 
-                    allPlaylists.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+                filter.innerHTML = '<option value="">All Playlists</option>' +
+                    allPlaylists.map(p => `<option value="${p.id}">${escapeHtml(p.custom_name || p.name)}</option>`).join('');
+
+                const trendSelect = document.getElementById('trendPlaylistSelect');
+                if (trendSelect) {
+                    trendSelect.innerHTML = allPlaylists.map(p => `<option value="${p.id}">${escapeHtml(p.custom_name || p.name)}</option>`).join('');
+                }
             } catch (e) {
                 console.error('Error loading playlists', e);
             }
@@ -938,14 +1028,14 @@
         async function addPlaylist() {
             const url = document.getElementById('playlistUrl').value.trim();
             if (!url) return showNotification('Please enter a URL', 'error');
-            
+
             try {
                 const res = await fetch(`${API_BASE}/api/playlists`, {
                     method: 'POST',
                     headers: getHeaders(),
                     body: JSON.stringify({ url })
                 });
-                
+
                 if (res.ok) {
                     const data = await res.json();
                     showNotification(data.message, 'success');
@@ -963,13 +1053,13 @@
 
         async function forceUpdate() {
             if (!confirm('Start background scraper? This may take several minutes.')) return;
-            
+
             try {
-                const res = await fetch(`${API_BASE}/api/force_update`, { 
-                    method: 'POST', 
-                    headers: getHeaders() 
+                const res = await fetch(`${API_BASE}/api/force_update`, {
+                    method: 'POST',
+                    headers: getHeaders()
                 });
-                
+
                 if (res.ok) {
                     showNotification('Update triggered! Check logs for progress.', 'success');
                 }
@@ -992,18 +1082,16 @@
             try {
                 const res = await fetch(`${API_BASE}/api/logs?limit=100`, { headers: getHeaders() });
                 const logs = await res.json();
-                
+
                 document.getElementById('logsContent').innerHTML = logs.map(l => `
-                    <div class="p-3 bg-gray-700 rounded border-l-4 ${
-                        l.status === 'Success' ? 'border-green-500' : 
+                    <div class="p-3 bg-gray-700 rounded border-l-4 ${l.status === 'Success' ? 'border-green-500' :
                         l.status === 'Failure' ? 'border-red-500' : 'border-blue-500'
                     }">
                         <div class="flex justify-between items-start mb-1">
                             <span class="text-gray-400">${new Date(l.timestamp).toLocaleString()}</span>
-                            <span class="px-2 py-1 text-xs font-semibold rounded ${
-                                l.status === 'Success' ? 'bg-green-900 text-green-200' : 
-                                l.status === 'Failure' ? 'bg-red-900 text-red-200' : 'bg-blue-900 text-blue-200'
-                            }">${l.status}</span>
+                            <span class="px-2 py-1 text-xs font-semibold rounded ${l.status === 'Success' ? 'bg-green-900 text-green-200' :
+                        l.status === 'Failure' ? 'bg-red-900 text-red-200' : 'bg-blue-900 text-blue-200'
+                    }">${l.status}</span>
                         </div>
                         <div class="text-white">${escapeHtml(l.message)}</div>
                         ${l.playlist_name ? `<div class="text-gray-500 text-xs mt-1">Playlist: ${escapeHtml(l.playlist_name)}</div>` : ''}
@@ -1020,42 +1108,17 @@
             try {
                 const res = await fetch(`${API_BASE}/api/playlists`, { headers: getHeaders() });
                 const playlists = await res.json();
-                
+
                 document.getElementById('playlistsList').innerHTML = playlists.map(p => `
                     <div class="p-4 bg-gray-700 rounded-lg flex justify-between items-center">
-                        <div class="flex-1">
-                            <div class="font-semibold text-white">${escapeHtml(p.name)}</div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                ${p.track_count} tracks | 
-                                ${p.is_active ? '<span class="text-green-400">Active</span>' : '<span class="text-gray-500">Inactive</span>'} |
-                                Last: ${p.last_updated ? new Date(p.last_updated).toLocaleDateString() : 'Never'}
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="togglePlaylistActive(${p.id}, ${p.is_active})" 
-                                class="px-3 py-1 text-sm rounded ${p.is_active ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'} text-white transition">
-                                ${p.is_active ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <button onclick="deletePlaylist(${p.id})" 
-                                class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition">
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                document.getElementById('playlistsList').innerHTML = '<p class="text-red-400">Error loading playlists</p>';
-            }
-        }
-
         async function togglePlaylistActive(id, currentState) {
             try {
-                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                const res = await fetch(`${ API_BASE } / api / playlists / ${ id }`, {
                     method: 'PUT',
                     headers: getHeaders(),
                     body: JSON.stringify({ is_active: !currentState })
                 });
-                
+
                 if (res.ok) {
                     showNotification('Playlist updated', 'success');
                     openPlaylistsModal();
@@ -1068,13 +1131,13 @@
 
         async function deletePlaylist(id) {
             if (!confirm('Delete this playlist and all its data?')) return;
-            
+
             try {
-                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                const res = await fetch(`${ API_BASE } / api / playlists / ${ id }`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
-                
+
                 if (res.ok) {
                     showNotification('Playlist deleted', 'success');
                     openPlaylistsModal();
@@ -1089,25 +1152,27 @@
         async function openUsersModal() {
             openModal('usersModal');
             try {
-                const res = await fetch(`${API_BASE}/api/users`, { headers: getHeaders() });
+                const res = await fetch(`${ API_BASE } / api / users`, { headers: getHeaders() });
                 const users = await res.json();
-                
+
                 document.getElementById('usersList').innerHTML = users.map(u => `
-                    <div class="p-4 bg-gray-700 rounded-lg flex justify-between items-center">
-                        <div>
-                            <div class="font-semibold text-white">${escapeHtml(u.username)}</div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                Role: ${u.role} | Joined: ${new Date(u.created_at).toLocaleDateString()}
-                            </div>
-                        </div>
-                        ${u.username !== 'admin' ? `
+                < div class= "p-4 bg-gray-700 rounded-lg flex justify-between items-center" >
+                <div>
+                    <div class="font-semibold text-white">${escapeHtml(u.username)}</div>
+                    <div class="text-xs text-gray-400 mt-1">
+                        Role: ${u.role} | Joined: ${new Date(u.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+                        ${
+                    u.username !== 'admin' ? `
                             <button onclick="deleteUser(${u.id})" 
                                 class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition">
                                 Delete
                             </button>
-                        ` : '<span class="text-xs text-gray-500">Default Admin</span>'}
-                    </div>
-                `).join('');
+                        ` : '<span class="text-xs text-gray-500">Default Admin</span>'
+                }
+                    </div >
+                    `).join('');
             } catch (e) {
                 document.getElementById('usersList').innerHTML = '<p class="text-red-400">Error loading users</p>';
             }
@@ -1117,16 +1182,16 @@
             const username = document.getElementById('newUsername').value.trim();
             const password = document.getElementById('newPassword').value;
             const role = document.getElementById('newRole').value;
-            
+
             if (!username || !password) return showNotification('Fill all fields', 'error');
-            
+
             try {
-                const res = await fetch(`${API_BASE}/api/users`, {
+                const res = await fetch(`${ API_BASE } / api / users`, {
                     method: 'POST',
                     headers: getHeaders(),
                     body: JSON.stringify({ username, password, role })
                 });
-                
+
                 if (res.ok) {
                     showNotification('User created', 'success');
                     document.getElementById('newUsername').value = '';
@@ -1143,13 +1208,13 @@
 
         async function deleteUser(id) {
             if (!confirm('Delete this user?')) return;
-            
+
             try {
-                const res = await fetch(`${API_BASE}/api/users/${id}`, {
+                const res = await fetch(`${ API_BASE } / api / users / ${ id }`, {
                     method: 'DELETE',
                     headers: getHeaders()
                 });
-                
+
                 if (res.ok) {
                     showNotification('User deleted', 'success');
                     openUsersModal();
@@ -1167,22 +1232,22 @@
             const oldPassword = document.getElementById('oldPassword').value;
             const newPassword = document.getElementById('newPasswordField').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            
+
             if (!oldPassword || !newPassword || !confirmPassword) {
                 return showNotification('Fill all fields', 'error');
             }
-            
+
             if (newPassword !== confirmPassword) {
                 return showNotification('Passwords do not match', 'error');
             }
-            
+
             try {
-                const res = await fetch(`${API_BASE}/api/change-password`, {
+                const res = await fetch(`${ API_BASE } / api / change - password`, {
                     method: 'POST',
                     headers: getHeaders(),
                     body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
                 });
-                
+
                 if (res.ok) {
                     showNotification('Password changed successfully', 'success');
                     closeModal('passwordModal');
@@ -1205,13 +1270,13 @@
                 error: 'bg-red-600',
                 info: 'bg-blue-600'
             };
-            
+
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in`;
+            notification.className = `fixed top - 4 right - 4 ${ colors[type]} text - white px - 6 py - 3 rounded - lg shadow - lg z - 50 animate - slide -in `;
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
             setTimeout(() => {
                 notification.remove();
             }, 3000);
@@ -1225,6 +1290,133 @@
                 }
             });
         });
+        async function editPlaylistName(id, currentName) {
+            const newName = prompt("Enter custom name for this playlist:", currentName);
+            if (newName === null) return; // Cancelled
+
+            try {
+                const res = await fetch(`${ API_BASE } / api / playlists / ${ id }`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ custom_name: newName }) // Only update custom_name
+                });
+
+                if (res.ok) {
+                    showNotification('Playlist renamed', 'success');
+                    openPlaylistsModal();
+                    await loadPlaylists();
+                    await loadData(); // Reload main data to reflect name change
+                } else {
+                    showNotification('Error renaming playlist', 'error');
+                }
+            } catch (e) {
+                showNotification('Network error', 'error');
+            }
+        }
+
+        // TRENDS CHART
+        let trendChartInstance = null;
+        let trendGranularity = 'daily';
+
+        function setTrendGranularity(gran) {
+            trendGranularity = gran;
+            // Update buttons
+            ['daily', 'weekly', 'monthly'].forEach(g => {
+                const btn = document.getElementById(`gran - ${ g }`);
+                if (g === gran) {
+                    btn.className = "px-3 py-1 text-xs font-medium rounded text-white bg-gray-600";
+                } else {
+                    btn.className = "px-3 py-1 text-xs font-medium rounded text-gray-400 hover:text-white";
+                }
+            });
+            loadTrends();
+        }
+
+        async function loadTrends() {
+            const playlistId = document.getElementById('trendPlaylistSelect').value;
+            if (!playlistId) return;
+
+            try {
+                const res = await fetch(`${ API_BASE } / api / playlists / ${ playlistId } / aggregates ? granularity = ${ trendGranularity }`, { headers: getHeaders() });
+                const data = await res.json();
+
+                renderTrendChart(data);
+            } catch (e) {
+                console.error("Error loading trends", e);
+            }
+        }
+
+        function renderTrendChart(data) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            if (trendChartInstance) {
+                trendChartInstance.destroy();
+            }
+
+            const labels = data.map(d => d.date);
+            const streams = data.map(d => d.total_streams);
+            const changes = data.map(d => d.daily_change);
+
+            trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Streams',
+                            data: streams,
+                            borderColor: '#1DB954',
+                            backgroundColor: 'rgba(29, 185, 84, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Daily Change',
+                            type: 'bar',
+                            data: changes,
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: { color: '#374151' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: {
+                            grid: { color: '#374151' },
+                            ticks: { color: '#9ca3af' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#d1d5db' } }
+                    }
+                }
+            });
+        }
     </script>
 </body>
+
 </html>
