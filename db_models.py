@@ -29,12 +29,6 @@ class Playlist(Base):
     last_updated = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    # NEW: Update status tracking (columns already exist in PostgreSQL)
-    update_status = Column(String, default="idle")  # "idle", "updating", "completed", "failed"
-    update_started_at = Column(DateTime, nullable=True)
-    update_completed_at = Column(DateTime, nullable=True)
-    last_successful_update = Column(DateTime, nullable=True)
-    
     tracks = relationship("Track", back_populates="playlist", cascade="all, delete-orphan")
 
 class Track(Base):
@@ -80,12 +74,6 @@ class StreamHistory(Base):
     is_reset = Column(Boolean, default=False)    # Streams decreased (reset)
     is_new = Column(Boolean, default=False)      # First appearance
     is_hidden = Column(Boolean, default=False)   # Stream count not visible
-    
-    # NEW: Scraping metadata (columns already exist in PostgreSQL)
-    is_simulated = Column(Boolean, default=False)  # Estimated from historical data
-    scrape_method = Column(String, nullable=True)  # "requests", "selenium", "simulated"
-    confidence_score = Column(Integer, nullable=True)  # 0-100 quality score
-    recorded_at = Column(DateTime, default=datetime.utcnow)  # When record was created
 
 class UpdateLog(Base):
     """
