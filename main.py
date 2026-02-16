@@ -38,8 +38,24 @@ RECIPIENT_EMAIL = "andre@sevenstudios.se"
 
 # Database Setup
 # Database Setup
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+print(f"DEBUG: Startup DATABASE_URL type: {type(DATABASE_URL)}")
+if DATABASE_URL:
+    # Mask password for logs
+    masked_url = DATABASE_URL
+    if "@" in DATABASE_URL:
+        part1, part2 = DATABASE_URL.split("@", 1)
+        masked_url = f"{part1.split(':', 2)[0]}:****@{part2}"
+    print(f"DEBUG: Raw DATABASE_URL: {masked_url}")
+
+    # Fix potential whitespace/quote issues
+    DATABASE_URL = DATABASE_URL.strip().strip('"').strip("'")
+    
+    # Fix Postgres dialect
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        print("DEBUG: Fixed postgres:// prefix")
+else:
+    print("DEBUG: DATABASE_URL is empty or None!")
 
 engine = create_engine(
     DATABASE_URL, 
