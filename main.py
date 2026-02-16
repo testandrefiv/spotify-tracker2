@@ -70,6 +70,7 @@ class PlaylistCreate(BaseModel):
 
 class PlaylistUpdate(BaseModel):
     name: Optional[str] = None
+    custom_name: Optional[str] = None
     is_active: Optional[bool] = None
 
 # Dependencies
@@ -495,21 +496,27 @@ async def get_playlists(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    playlists = db.query(Playlist).all()
+    # Optimized query with track count
+    playlists_data = db.query(
+        Playlist, 
+        func.count(Track.id).label('track_count')
+    ).outerjoin(Track).group_by(Playlist.id).all()
+    
     return [{
-        "id": p.id,
-        "name": p.name,
-        "url": p.url,
-        "spotify_id": p.spotify_id,
-        "is_active": p.is_active,
-        "last_updated": p.last_updated.isoformat() if p.last_updated else None,
-        "track_count": len(p.tracks),
+        "id": p[0].id,
+        "name": p[0].name,
+        "custom_name": p[0].custom_name,
+        "url": p[0].url,
+        "spotify_id": p[0].spotify_id,
+        "is_active": p[0].is_active,
+        "last_updated": p[0].last_updated.isoformat() if p[0].last_updated else None,
+        "track_count": p.track_count,
         # NEW: Update status tracking (null-safe for old data)
-        "update_status": getattr(p, 'update_status', 'idle'),
-        "update_started_at": getattr(p, 'update_started_at', None).isoformat() if getattr(p, 'update_started_at', None) else None,
-        "update_completed_at": getattr(p, 'update_completed_at', None).isoformat() if getattr(p, 'update_completed_at', None) else None,
-        "last_successful_update": getattr(p, 'last_successful_update', None).isoformat() if getattr(p, 'last_successful_update', None) else None
-    } for p in playlists]
+        "update_status": getattr(p[0], 'update_status', 'idle'),
+        "update_started_at": getattr(p[0], 'update_started_at', None).isoformat() if getattr(p[0], 'update_started_at', None) else None,
+        "update_completed_at": getattr(p[0], 'update_completed_at', None).isoformat() if getattr(p[0], 'update_completed_at', None) else None,
+        "last_successful_update": getattr(p[0], 'last_successful_update', None).isoformat() if getattr(p[0], 'last_successful_update', None) else None
+    } for p in playlists_data]
 
 @app.put("/api/playlists/{playlist_id}")
 async def update_playlist(
@@ -524,6 +531,8 @@ async def update_playlist(
     
     if update_data.name is not None:
         playlist.name = update_data.name
+    if update_data.custom_name is not None:
+        playlist.custom_name = update_data.custom_name
     if update_data.is_active is not None:
         playlist.is_active = update_data.is_active
     
