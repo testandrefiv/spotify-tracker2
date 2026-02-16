@@ -14,3 +14,4 @@ psycopg2-binary
 beautifulsoup4
 tenacity
 pytz
+webdriver-manager
